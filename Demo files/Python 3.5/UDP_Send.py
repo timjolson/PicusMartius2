@@ -7,8 +7,9 @@ import time
 
 number = 1
 
+# Rover IP address is 192.168.1.20
 while(True):
-    address=( '192.168.1.100', 5000) #define server IP and port
+    address=( '192.168.1.20', 5000) #define server IP and port
     client_socket = socket(AF_INET, SOCK_DGRAM) #Set up the Socket
     client_socket.settimeout(1) #Only wait 1 second for a response
 
