@@ -1,0 +1,45 @@
+if(!Want to Add Things){
+
+	Fuck Off!;
+
+}
+
+if (Windowed Stuff?){
+	sudo apt-get install xorg;
+	Can start things with e.g: startx /usr/bin/firefox;
+
+}
+
+else if (Process Viewer?){
+	sudo apt-get install htop;
+
+}
+
+else if (End Processes){
+	killall <process-name>;
+	pkill <process-name>;
+	kill <PID>;
+
+}
+
+else if (Get Storage Info?){
+	df -h;
+
+}
+
+else if (Camera Stream to webpage?){
+
+	jacobsalmela.com/raspberry-pi-webcam-using-mjpg-streamer-over-internet/#comment-1952362368;
+
+}
+
+
+
+hwinfo --short
+lsblk
+ffmpeg
+
+sudo /usr/local/bin/mjpg_streamer -i "/usr/local/lib/input_uvc.so f:30" -o "/usr/local/lib/output_http.so -w /usr/local/www"
+sudo ffmpeg -f mjpeg -r 5 -i "http://localhost:8080/?action=stream" -r 5 /media/usb/video.avi
+sudo mount -o rw /dev/sda1 /media/usb
+

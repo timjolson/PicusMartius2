@@ -1,0 +1,59 @@
+Want to refresh Odroid XU4;
+
+Get minimal ubuntu image from Odroid for XU4/XU3;
+
+//http://odroid.com/
+Get Win32ImageWriter;
+
+//https://launchpad.net/win32-image-writer
+
+Unzip image, use Win32 to write image to SD Card;
+
+Put in Odroid, put load selector switch on SD, power on;
+
+//sudo apt-get update
+Download updates;
+//Ctrl-C to abort update
+
+if(!Update Succeeds){
+	//sudo mv /etc/resolv.conf /etc/backup.resolv.conf
+
+	backup resolv.conf;
+
+	//sudo apt-get clean
+
+	//reboot
+  clean up;
+
+	//sudo nano /etc/resolv.conf
+
+	add servers;
+
+	//nameserver 8.8.8.8 nameserver 8.8.4.4
+
+	add google servers;
+
+	reboot;
+
+	retry update;
+
+}
+
+//sudo apt-get upgrade
+
+install updates;
+
+accept update for apt-fast.conf;
+
+Console - Enter to accept defaults;
+
+//sudo apt-get dist-upgrade
+
+update kernel;
+
+reboot;
+
+re-run update and upgrade;
+
+//https://www.digitalocean.com/community/tutorials/how-to-create-a-sudo-user-on-ubuntu-quickstart
+add users;

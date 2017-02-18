@@ -1,0 +1,37 @@
+GUI: ||GUI||;
+
+switch(New Data?){
+	case Ethernet Data:
+		Monitor Safeties;
+		if(Safety Triggered){
+			(Display Warning);
+			if(Hazardous){
+				(Issue Stop Command);
+				Make into UDP Packet;
+				Send to ROV;
+			}
+			|Update Display|;
+		}
+	break;
+	case Command Entered:
+		Run Button Function;
+		if(GUI Subpage Selected){
+			Go to Subpage;
+			|Update Display|;
+		}
+		else if(ROV Command or 
+		Setting Change){
+			Make into TCP Packet;
+			Send Packet to Raspberry PI;
+			//On Raspberry PI
+			if(Command is for PI){
+				Change Settings;
+				|Send Update to GUI|;
+			}
+			else if(Command is for ROV){
+				Make into UDP Packet;
+				|Send to ROV|;
+			}
+		}
+	break;
+}

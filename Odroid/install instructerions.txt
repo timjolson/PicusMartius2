@@ -1,0 +1,45 @@
+Installation
+1. install anaconda for python 3.5
+https://www.continuum.io/downloads
+2. install pycharm (community is free)
+https://www.jetbrains.com/pycharm/download/#section=windows
+3. install pygame 2.9
+https://skellykiernan.wordpress.com/2015/01/04/python-pygame-install/
+4. grab putty
+http://putty-portable.en.softonic.com/
+5. grab winscp
+http://portableapps.com/apps/internet/winscp_portable
+
+Connection
+1. Connect pi to switch
+2. Connect computer to switch
+
+Connection Test (Linux)
+1. sudo arp-scan --localnet --interface=eth0
+2. ping discovered raspberry pi  //192.168.1.100
+
+Connection Test (Windows)
+Computer must have manually assigned IP (192.168.1.###)
+Pi is 100
+ROV is 101
+Tim's is 102
+1. ping IP of Pi
+2. see if Putty can connect
+
+To Actually connect
+1. Putty - ssh for commands
+2. WinSCP - for file access
+
+
+While Using SSH
+tmux 	/multiple terminals
+
+ctrl-b	/get control of terminals
+
+shift-" /add terminal
+x 	/close
+space	/change layout
+
+
+For EEPROM problem (no member 'get' or 'update', etc), manually update EEPROM library from github
+https://github.com/arduino/Arduino/tree/master/hardware/arduino/avr/libraries/EEPROM
