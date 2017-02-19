@@ -4,6 +4,7 @@ from enum import *
 
 class AutoNumber(Enum):
     # lets enumerators have auto-generated values
+    # see instance in picusData.py - PicusMode()
     def __new__(cls):
         value = len(cls.__members__) + 1
         obj = object.__new__(cls)

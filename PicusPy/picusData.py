@@ -4,6 +4,8 @@ from picusEnum import *
 
 @unique
 class PicusMode(AutoNumber):
+    # these are enumerations
+    # see use below in class Picus, mode =
     autonomous = ()
     standby = ()
     stationary = ()
@@ -24,7 +26,7 @@ class Picus:
     waypoints = []  # list of known good GPS waypoints
     targets = []  # list of target GPS waypoints
 
-    mode = PicusMode.standby
+    mode = PicusMode.standby # rover operating mode
 
 
 class Martius:
