@@ -46,7 +46,8 @@ def receiver(data):
             # process packet
             if rx:
                 # have received data and rx != 0
-                print("RX: ", time.clock() - pickle.loads(rx)) # print transmit and process time
+                print("RX: ", time.time() - pickle.loads(rx)) # print transmit and process time
+                print (pickle.loads(rx))
                 connection.sendall("rx".encode('utf-8')) # send an acknowledge if you want to
             else:
                 # rx == 0 means client sent 0 as disconnect
@@ -58,6 +59,6 @@ def receiver(data):
 # starts process clock
 # starts receiver
 if __name__ == "__main__":
-    starttime = time.clock()
+    starttime = time.time()
     receiver(0)
 

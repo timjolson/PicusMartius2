@@ -30,9 +30,12 @@ def sender(data):
                 # connection good if made it this far
                 break
             except socket.error as err:
-                # socket err, print and stay in this loop
-                print(err)
                 connGood = False
+                if err.errno == 10054 or err.errno == 54 or err.errno == 10061:
+                    pass
+                else:
+                    # socket err, print and stay in this loop
+                    print(err)
                 
         # until connection has problem
         while connGood:
@@ -43,17 +46,18 @@ def sender(data):
             # try sending data
             try:
                 # pack the current time and send
-                sock.send(pickle.dumps(time.clock()))
+                t = time.time()
+                sock.send(pickle.dumps(t))
                 
                 # running directly, print what was transmitted
                 if isMain:
-                    print("TX: ", tx, "  :", time.clock())
+                    print("TX: ", tx)
                     
             # socket has an error
             except socket.error as err:
                 # error involving server close
-                if err.errno == 10054 or err.errno == 54:
-                    print("restarting")
+                if err.errno == 10054 or err.errno == 54 or err.errno == 10061:
+                    print("lost receiver")
                     try:
                         # try to close the socket so we can restart it
                         sock.close()
@@ -70,6 +74,6 @@ def sender(data):
 # sets flag, starts process clock, sends data
 if __name__ == "__main__":
     isMain = True
-    starttime = time.clock()
-    sender("bb")
+    starttime = time.time()
+    sender("hello")
 
