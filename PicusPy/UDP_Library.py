@@ -3,18 +3,24 @@
 import socket
 from socket import *
 import time
+from picusData import *
 
 class UDP_Library():
     freq = 20
     last = 0
 
-    def __init__(self, myAddr, address, port):
-        self.address = (address, port)
-        self.port = port
+    def __init__(self, myAddr, address):
+        self.address = address
 
         self.client_socket = socket(AF_INET, SOCK_DGRAM) #Set up the Socket
-        self.client_socket.bind(myAddr) # this is me
-        self.client_socket.settimeout(0.1) #Only wait 1 second for a response
+        try:
+            self.client_socket.bind(myAddr) # this is me
+        except error as err:
+            if err.errno == 10049:
+                #print("\r\nAddress error, try setting machine static IP or updating myAddr in the script...\r\n")
+                raise Exception("\r\r\n\nAddress error, try setting machine static IP or updating myAddr in the script...")
+
+        self.client_socket.settimeout(0.1) #Only wait .1 second for a response
 
     def sendUDP(self, message):
         try:
@@ -49,8 +55,14 @@ class UDP_Library():
 
 
 if __name__ == '__main__':
-    myAddr
-    otherAddr = "192.168.1.100"
-    port = 5000
-    otherside = UDP_Library( myAddr, otherAddr, port)
-    otherside.sendUDP(raw_input("message:"))
+    myAddr = ("192.168.1.100", 5000)
+    otherAddr = ("192.168.1.200", 5000)
+    otherside = UDP_Library( myAddr, otherAddr)
+    while True:
+        otherside.sendUDP("test1234test9876")
+        print("tx")
+        time.sleep(0.5)
+        try:
+            print(otherside.receiveUDP())
+        except:
+            pass
