@@ -55,5 +55,10 @@ reboot;
 
 re-run update and upgrade;
 
-//https://www.digitalocean.com/community/tutorials/how-to-create-a-sudo-user-on-ubuntu-quickstart
+//adduser USERNAME
 add users;
+
+//usermod -aG sudo USERNAME
+give users sudo rights;
+
+enjoy;
