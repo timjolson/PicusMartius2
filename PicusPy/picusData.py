@@ -14,8 +14,8 @@ class PicusMode(AutoNumber):
 
 
 class Picus:
-    serverConn900 = ('localhost', 6000)  # this is the rover @900MHz
-    serverConn24 = ('localhost', 6001)  # this is the rover @2.4GHz
+    #conn900 = ("192.168.1.100", 6000)  # this is the rover @900MHz
+    conn24 = ("192.168.1.100", 6001)  # this is the rover @2.4GHz
     localTimeout = 0.02  # socket timeout
 
     driveTimeout = 0.06  # safety timeout for drive system
@@ -30,8 +30,8 @@ class Picus:
 
 
 class Martius:
-    serverConn900 = ('localhost', 6000)  # this is the controller @900MHz
-    serverConn24 = ('localhost', 6001)  # this is the controller @2.4GHz
+    #conn900 = ('localhost', 6000)  # this is the controller @900MHz
+    conn24 = ('localhost', 6001)  # this is the controller @2.4GHz
     localTimeout = 0.02  # socket timeout
 
 #Header to identify packet type
@@ -76,67 +76,69 @@ class ControlStruct():
 	y = 0
 	z = 0
 	w = 0
-	b = [0,0,0,0]	#4 buttons
+	fb = [0,0,0,0]	#4 face buttons
+	tb = [0,0,0,0]  #4 trigger buttons
+	dpad = 0
 
 
-#~ #GPS coordinates and compass rotation
-#~ class GPSStruct():
-	#~ float lat
-	#~ float lon
-    #~ float alt
-    #~ float compass
-#~
+#GPS coordinates and compass rotation
+class GPSStruct():
+	lat = 0
+	lon = 0
+	alt = 0
+	compass = 0
 
-#~ #Absolute Orientation from IMU
-#~ class IMUStruct():
-	#~ float roll
-	#~ float pitch
-	#~ float yaw
-#~
 
-#~ #Sensor values, can roll all sensors into the one struct
-#~ class SensorStruct():
-	#~ float[2] fVal
-	#~ int[2] intVal
-#~
+#Absolute Orientation from IMU
+class IMUStruct():
+	roll = 0
+	pitch = 0
+	yaw = 0
 
-#~ #Stores Cartesian coordinates of each joint, plus rotation and tilt of wrist
-#~ class ArmPositionStruct():
-	#~ float x	#left\right
-	#~ float y	#in\out
-	#~ float z	#up\down
-	#~ float w	#wrist angle
-	#~ float r	#wrist rotation
-#~
 
-#~ #Stores encoder values for each motor with min and max
-#~ class ArmRawStruct():
-	#~ float[6] motor #current motor position
-	#~ float[6] min	#min motor value (bottom of range)
-	#~ float[6] max	#max motor value (top of range)
-#~
+#Sensor values, can roll all sensors into the one struct
+class SensorStruct():
+	fVal = [0,0]
+	intVal = [0,0]
 
-#~ #Packet sent to arm
-#~ class ToArmPacket():
-	#~ StatusStruct status
-	#~ ArmPositionStruct goal
-	#~ uint8_t grip
-#~
 
-#~ #Packet coming from arm
-#~ class FromArmPacket():
-	#~ StatusStruct status
-	#~ uint16_t error
-	#~ ArmPositionStruct position
-	#~ ArmRawStruct raw
-#~
+#Stores Cartesian coordinates of each joint, plus rotation and tilt of wrist
+class ArmPositionStruct():
+	x = 0	#left\right
+	y = 0	#in\out
+	z = 0	#up\down
+	w = 0	#wrist angle
+	r = 0	#wrist rotation
 
-#~ #Arm axis PID values
-#~ class ArmPIDVals():
-	#~ float[7] kP
-	#~ float[7] kI
-	#~ float[7] kD
-#~
+
+#Stores encoder values for each motor with min and max
+class ArmRawStruct():
+	motor = [0,0,0,0,0,0]   #current motor position
+	min = [0,0,0,0,0,0] 	#min motor value (bottom of range)
+	max = [0,0,0,0,0,0] 	#max motor value (top of range)
+
+
+#Packet sent to arm
+class ToArmPacket():
+	status = StatusStruct
+	goal = ArmPositionStruct
+	grip = 0
+
+
+#Packet coming from arm
+class FromArmPacket():
+	status = StatusStruct
+	error = 0
+	position = ArmPositionStruct
+	raw = ArmRawStruct
+
+
+#Arm axis PID values
+class ArmPIDVals():
+	kP = [0,0,0,0,0,0,0]
+	kI = [0,0,0,0,0,0,0]
+	kD = [0,0,0,0,0,0,0]
+
 
 #Packet to ROVER
 class ToRoverPacket():
@@ -149,38 +151,37 @@ class ToRoverPacket():
 #Packet from ROVER
 class FromRoverPacket():
 	status = StatusStruct
-	#position = GPSStruct
+	position = GPSStruct
 	wheelAngle = 0
 	wheelSpeed = 0
-	#imu = IMUStruct
+	imu = IMUStruct
 	error = 0
 
 
-#~ #Rover things PID values
-#~ class RoverPIDVals():
-	#~ float[8] kP
-	#~ float[8] kI
-	#~ float[8] kD
-#~
+#Rover things PID values
+class RoverPIDVals():
+	kP = [0,0,0,0,0,0,0,0,0,0]
+	kI = [0,0,0,0,0,0,0,0,0,0]
+	kD = [0,0,0,0,0,0,0,0,0,0]
 
-#~ #Structure that holds a picture, with geolocation and time data
-#~ class PhotoStruct():
-	#~ uint16_t[2] size
-    #~ bool* dat
-	#~ sometype timestamp
-	#~ GPSStruct location
-	#~ IMUStruct imu
-#~
 
-#~ #Structure for high resolution camera stuff
-#~ class HighResStruct():
-	#~ int settingsorsomething
-	#~ PhotoStruct photo
-#~
+#Structure that holds a picture, with geolocation and time data
+class PhotoStruct():
+	size = [0,0]
+    #dat = image data
+	#sometype timestamp
+	location = GPSStruct
+	imu = IMUStruct
 
-#~ #Struct to send commands to ROVER or Arm
-#~ class CommandStruct():
-	#~ uint16_t cmdNum
-	#~ float fVal
-	#~ int intVal
-#~
+
+#Structure for high resolution camera stuff
+class HighResStruct():
+	settingsorsomething = 0
+	photo = PhotoStruct
+
+
+#Struct to send commands to ROVER or Arm
+class CommandStruct():
+	cmdNum = 0
+	fVal = 0.0
+	intVal = 0
