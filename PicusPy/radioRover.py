@@ -1,6 +1,8 @@
 import sys, time
 from picusData import *
 from UDP_Library import *
+from tcp_tx import *
+from tcp_rx import *
 
 # timing info
 start = time.time() # start of script
@@ -14,6 +16,8 @@ ctrlAddr = Martius.conn24   # controller @2.4GHz
 # create radio objetc to send and receive
 radio = UDP_Library( myAddr, ctrlAddr)
 
+lp = Picus.local_ports
+
 # empty control structure so we can read for buttons without
 # received data  ( button 1 stops script on rover )
 rx = ControlStruct()
@@ -22,6 +26,9 @@ rx = ControlStruct()
 while True:
     curr = time.time()  # update current time
     trx = 0
+
+    rx.clear()
+
     # if we're waiting for data, print that
     if curr - last > 3 and curr - lastDat > 1:
         last = curr
@@ -43,11 +50,12 @@ while True:
             print("no pickle")
             pass
 
-        try:
-            print(rx.x)             # print x axis for reference
-        except:
-            print("not control structure")
-            pass
+        if type(rx) == ControlStruct:
+            local_send(lp['L'], rx.z)
+            local_send(lp['R'], -rx.z)
+            local_send(lp['S'], rx.x)
+            print(rx.z)
+
     # end if trx
 
     # check button 1 status
@@ -61,5 +69,9 @@ while True:
         print("time up")
         # stop script
         break
-
 # end while True
+
+local_send(lp['L'], "0")
+local_send(lp['R'], "0")
+local_send(lp['S'], "0")
+
