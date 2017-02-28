@@ -15,7 +15,7 @@ class PicusMode(AutoNumber):
 
 class Picus:
     conn24 = ("192.168.1.200", 7008)  # this is the rover @2.4GHz
-    localTimeout = 0.02  # socket timeout
+    localTimeout = 0.01  # socket timeout
 
     driveTimeout = 0.06  # safety timeout for drive system
     armTimeout = 0.06  # safety timeout for arm system
@@ -26,11 +26,11 @@ class Picus:
     targets = []  # list of target GPS waypoints
 
     mode = PicusMode.standby # rover operating mode
-
+    local_ports = {'L': 6000, 'R': 6001, 'S': 6002} #
 
 class Martius:
     conn24 = ("192.168.1.100", 6008)  # this is the controller @2.4GHz
-    localTimeout = 0.02  # socket timeout
+    localTimeout = 0.01  # socket timeout
 
 #Header to identify packet type
 class HeaderType(AutoNumber):
@@ -70,13 +70,16 @@ class StatusStruct():
 
 #Controller/joystick data
 class ControlStruct():
-	x = 0	#4 proportional axes
-	y = 0
-	z = 0
-	w = 0
-	fb = [0,0,0,0]	#4 face buttons
-	tb = [0,0,0,0]  #4 trigger buttons
-	#dpad = 0
+	def __init__(self):
+		self.clear()
+	def clear(self):
+		self.x = 0
+		self.y = 0
+		self.z = 0
+		self.w = 0
+		self.fb=[0,0,0,0]
+		self.tb=[0,0,0,0]
+		self.dpad=0
 
 
 #GPS coordinates and compass rotation
