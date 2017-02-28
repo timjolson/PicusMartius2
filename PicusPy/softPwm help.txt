@@ -1,0 +1,16 @@
+# Range of 20 seems to work for the cytron ESCs
+
+
+The basic pulse unit is 100 micros long.
+
+The final paramater in softPwmCreate says how long each cycle is in basic pulse units.
+
+softPwmCreate(1,0,200) says create a cycle 20 ms long made up of 200 steps (20 ms as 200 * 100 = 20000 microseconds).
+
+softPwmWrite(1,185) says keep the pulse high for 18.5 ms in every 20 ms cycle (18.5 ms as 185 * 100 = 18500 microseconds). That is way too long. Servos nominally respond to 1 ms - 2 ms pulses. So you should choose values 10 - 20.
+
+softPwmCreate(1,0,500) says create a cycle 50 ms long made up of 500 steps.
+
+softPwmWrite(1,14) says keep the pulse high for 1.4 ms in every 50 ms cycle. This will be close to the central position. A correct value would be 15 (again nominally values 10-20 should be used).
+
+The 20 ms cycle is more correct for servos as it will give a nominal update of 50 Hz. A 50 ms cycle will only update at 20 Hz.
