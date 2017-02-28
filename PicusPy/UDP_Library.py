@@ -55,8 +55,8 @@ class UDP_Library():
 if __name__ == '__main__':
     start = time.time()
     last = 0
-    myAddr = ("192.168.1.200", 7008)
-    otherAddr = ("192.168.1.100", 6008)
+    myAddr = Picus.conn24
+    otherAddr = Martius.conn24
     otherside = UDP_Library( myAddr, otherAddr)
     while True:
         #otherside.sendTXT("t")
