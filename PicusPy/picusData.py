@@ -14,8 +14,7 @@ class PicusMode(AutoNumber):
 
 
 class Picus:
-    #conn900 = ("192.168.1.100", 6000)  # this is the rover @900MHz
-    conn24 = ("192.168.1.100", 6001)  # this is the rover @2.4GHz
+    conn24 = ("192.168.1.200", 7008)  # this is the rover @2.4GHz
     localTimeout = 0.02  # socket timeout
 
     driveTimeout = 0.06  # safety timeout for drive system
@@ -30,8 +29,7 @@ class Picus:
 
 
 class Martius:
-    #conn900 = ('localhost', 6000)  # this is the controller @900MHz
-    conn24 = ('localhost', 6001)  # this is the controller @2.4GHz
+    conn24 = ("192.168.1.100", 6008)  # this is the controller @2.4GHz
     localTimeout = 0.02  # socket timeout
 
 #Header to identify packet type
@@ -78,7 +76,7 @@ class ControlStruct():
 	w = 0
 	fb = [0,0,0,0]	#4 face buttons
 	tb = [0,0,0,0]  #4 trigger buttons
-	dpad = 0
+	#dpad = 0
 
 
 #GPS coordinates and compass rotation
