@@ -17,7 +17,7 @@ class Picus:
     conn24 = ("192.168.1.200", 7008)  # this is the rover @2.4GHz
     localTimeout = 0.01  # socket timeout
 
-    driveTimeout = 0.06  # safety timeout for drive system
+    driveTimeout = 0.5  # safety timeout for drive system
     armTimeout = 0.06  # safety timeout for arm system
     sciTimeout = 0.06  # safety timeout for science system
 
@@ -186,3 +186,11 @@ class CommandStruct():
 	cmdNum = 0
 	fVal = 0.0
 	intVal = 0
+
+
+class PWM():
+	freqRange = 30
+	neutral = 14
+	min = 7
+	max = 22
+	range = max - neutral
