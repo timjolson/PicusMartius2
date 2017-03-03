@@ -1,4 +1,4 @@
-import sys, time
+import sys, time, datetime
 from picusData import *
 from UDP_Library import *
 from tcp_tx import *
@@ -8,6 +8,8 @@ from tcp_rx import *
 start = time.time() # start of script
 last = start        # last print for waiting
 lastDat = start     # last received data
+
+print("\r\nStarting Rover @" + str(datetime.datetime.fromtimestamp(start)))
 
 # addresses (set in picusData)
 myAddr = Picus.conn24       # rover @2.4GHz
@@ -30,7 +32,7 @@ while True:
     rx.clear()
 
     # if we're waiting for data, print that
-    if curr - last > 3 and curr - lastDat > 1:
+    if (curr - last > 3) and (curr - lastDat) > 1:
         last = curr
         print("waiting")
 
@@ -51,10 +53,15 @@ while True:
             pass
 
         if type(rx) == ControlStruct:
-            local_send(lp['L'], rx.z)
-            local_send(lp['R'], -rx.z)
-            local_send(lp['S'], rx.x)
-            print(rx.z)
+            if abs(rx.y) < 0.08:
+                scale = 0.25
+            elif rx.y >0:
+                scale = 1.0
+            else:
+                scale = 0.6
+            local_send(lp['L'], rx.z * scale)
+            local_send(lp['R'], -1 * rx.z * scale)
+            local_send(lp['S'], rx.x * scale)
 
     # end if trx
 
@@ -65,7 +72,7 @@ while True:
         break
 
     # check being bored for 10 seconds
-    if curr - lastDat > 10:
+    if (curr - lastDat) > 10:
         print("time up")
         # stop script
         break
@@ -75,3 +82,4 @@ local_send(lp['L'], "0")
 local_send(lp['R'], "0")
 local_send(lp['S'], "0")
 
+exit(0)

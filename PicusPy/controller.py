@@ -28,3 +28,5 @@ while(True):
         if rx!=0: print(rx)
     except:
         pass
+
+exit(0)

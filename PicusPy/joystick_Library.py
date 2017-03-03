@@ -25,6 +25,7 @@ class joystick_Library():
         elif(pygame.joystick.get_count()<1):
             self.stat = "invalid"
             print("No Joystick detected")
+            exit(1)
         # otherwise, it initialized
         else:
             self.stat = "invalid"
