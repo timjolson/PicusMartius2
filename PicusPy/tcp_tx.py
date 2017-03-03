@@ -112,9 +112,12 @@ def local_send(port, data="",tried=True):
 # sets flag, starts process clock, sends data
 if __name__ == "__main__":
     isMain = True
+    start = time.time()
 
     # send data over port
     data = 123 # can be text or whatever
-    while True:
+    while time.time() - start < 40:
         local_send(9000, data)
         time.sleep(0.5)
+
+    exit(0)

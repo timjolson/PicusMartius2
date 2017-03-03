@@ -18,7 +18,7 @@ def start_local_receive(port):
 
     return server
 
-def local_receive(server, tried=False):
+def local_receive(server):
     connGood = False
     yes_return = False
     server.listen(1)
@@ -29,7 +29,7 @@ def local_receive(server, tried=False):
         # connection is good, bump to next loop
     except socket.timeout:
         # connection timedout, stay in this loop
-        tried = True
+        pass
     except socket.error as err:
         # connection error, print and stay in this loop
         print(err)
@@ -129,9 +129,12 @@ def local_receive(server, tried=False):
 # starts receiver
 if __name__ == "__main__":
     isMain = True
+    start = time.time()
     serv = start_local_receive(9000) # setup port
 
     # watch for data on setup port
-    while True:
+    while time.time() - start < 40:
         a = local_receive(serv)
         if a: print(a)
+
+    exit(0)
