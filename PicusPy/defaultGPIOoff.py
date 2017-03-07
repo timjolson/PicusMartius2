@@ -8,8 +8,9 @@ def defaultoff():
         droid.wiringPiSetupGpio()
         try:
             for pin in pinlist:
-                droid.pinMode(pin, 1)
-                droid.digitalWrite(pin, 0)
+                droid.pinMode(pin, 0) # set as input
+                droid.pinMode(pin, 1) # set as output
+                droid.digitalWrite(pin, 0) # set pin low
             print('initialized GPIO pins off')
             exit(0)
         except Exception:
@@ -18,7 +19,6 @@ def defaultoff():
     except Exception:
         print("error - PiSetupGpio")
         exit(1)
-
 
 if __name__ == '__main__':
     defaultoff()

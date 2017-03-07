@@ -49,7 +49,9 @@ while True:
         try:
             rx = pickle.loads(trx)  # unpack data
         except:
-            print("no pickle")
+            print("no pickle") # but we like pickles
+            # pickles are the best
+            # pickles are my precious
             pass
 
         if type(rx) == ControlStruct:

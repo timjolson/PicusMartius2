@@ -19,7 +19,8 @@ while(True):
         last = curr
         pygame.event.pump()
         tx = j.read_Joystick()
-        rover.sendDAT(pickle.dumps(tx))
+        if tx:
+            rover.sendDAT(pickle.dumps(tx))
         print(tx.x)
 
     try:
