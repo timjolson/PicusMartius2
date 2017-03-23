@@ -1,3 +1,5 @@
+#Tim check your damn email -Patrick
+
 # PicusMartius
 Software for operating the rover
 
