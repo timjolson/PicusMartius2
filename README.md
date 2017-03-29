@@ -1,25 +1,25 @@
 # PicusMartius
 Software for operating the rover
 
-# Python3
+## Python3
 Anaconda
 https://www.continuum.io/downloads
 
-# PyCharm
+## PyCharm
 Editor/Interpreter, and Jupyter Notebooks
 https://www.jetbrains.com/pycharm/
 
-# WiringPi2 - (use python2)
+## WiringPi2 - (use python2)
 Installation
 http://raspi.tv/how-to-install-wiringpi2-for-python-on-the-raspberry-pi
 
 Github (deprecated)
 https://github.com/Gadgetoid/WiringPi2-Python
 
-# Pygame for joystick stuff
+## Pygame for joystick stuff
 https://www.pygame.org/docs/ref/joystick.html
 
-# PWM reference
+## PWM reference
 Arduino
 https://www.arduino.cc/en/Tutorial/PWM
 
