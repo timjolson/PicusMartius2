@@ -1,5 +1,6 @@
+# PID.py
+# PID closed loop library
 import time
-from stopwatch import StopWatch
 
 
 class PID:
@@ -23,12 +24,16 @@ class PID:
     prevError = 0.0     # previous error
     integral = 0.0      # integral of the error
 
+    # deadband zone size
+    db = 15
+
     # constructor, pass in constants, refresh interval, and smoothing option
-    def __init__(self, kP, kI, kD, refreshTime=0.03, smooth=0):
+    def __init__(self, kP, kI, kD, db, refreshTime=0.03, smooth=0):
         self.lastCalc = time.time()
         self.kP = kP
         self.kI = kI/1000.0
         self.kD = kD
+        self.db = db
         self.smooth = smooth
         self.refreshTime = refreshTime
 
@@ -54,7 +59,7 @@ class PID:
             self.dt = now - self.lastCalc
 
             # if it's time to refresh and something weird has not happened (dt more than .5 second)
-            if self.refreshTime < self.dt and self.dt < 0.5:
+            if self.refreshTime < self.dt and self.dt < 0.7:
                 # update integral
                 self.integral = self.integral + self.error
 
@@ -64,8 +69,14 @@ class PID:
                 # save error
                 self.prevError = self.error
 
+                if abs(self.error) < self.db:
+                    # self.error = 0.0
+                    self.integral = 0.0
+                    self.control = 0.0
+                    return self.error, self.control
+
                 # set control speed
-                self.control = self.control + self.kP * self.error - self.kI * self.integral + self.kD * self.derr
+                self.control = self.kP * self.error - self.kI * self.integral + self.kD * self.derr
 
                 # check for saturation
                 if abs(self.control) > 1.0:
@@ -122,8 +133,9 @@ class PID:
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+    from stopwatch import StopWatch
     # slow rise tuning
-    thing = PID(0.00001, 0.00, 0.05, 0.05)
+    thing = PID(0.00001, 0.00, 0.05, 0, 0.05)
     thing.enable()
     thing.setSP(0)
 
@@ -155,12 +167,12 @@ if __name__ == "__main__":
             set5 = True
         elif dt > 13 and (not set4):
             # good tuning
-            thing.setGains(0.15, 0.00, .4, 1)
+            thing.setGains(0.15, 0.00, .4, 0, 1)
             thing.setSP(1)
             set4 = True
         elif dt > 8 and (not set3):
             # oscillating, way underdamped
-            thing.setGains(0.08, 0.0, 0.01)
+            thing.setGains(0.08, 0.0, 0.01, 0)
             thing.enable()
             thing.setSP(-2)
             set3 = True
@@ -169,7 +181,7 @@ if __name__ == "__main__":
             set2 = True
         elif dt > 4 and (not set1):
             # underdamped
-            thing.setGains(0.05, 0.00, .15, 0)
+            thing.setGains(0.05, 0.00, .15, 0, 0)
             thing.enable()
             thing.setSP(6)
             set1 = True
