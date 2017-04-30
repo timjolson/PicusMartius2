@@ -2,30 +2,48 @@
 apt-get install python-setuptools python-dev python3-setuptools python3-dev
 apt-get install swig2.0 pip
 pip install --upgrade pip enum34
+apt-get install i2c-tools
 
+######################
 # get wiringPi2
 git clone https://github.com/synthead/WiringPi2-Python.git
-
 # go into folder
 cd WiringPi2-Python/
-
 # remove folder
 rm -rf WiringPi/
-
 # clone wiringPi
 git clone https://github.com/hardkernel/wiringPi
-
 # go into folder
 cd wiringPi
-
-# build
+# build it
 ./build
-
 # up one folder
 cd ..
-
 # rename to capital W
 mv wiringPi WiringPi
-
 # build Pi2-Py
 ./build.sh
+
+
+######################
+# get ADC python library
+# https://github.com/adafruit/Adafruit_Python_ADS1X15
+apt-get install git build-essential python-dev
+git clone https://github.com/adafruit/Adafruit_Python_ADS1x15.git
+cd Adafruit_Python_ADS1x15
+sudo python setup.py install
+
+######################
+# to set static IP address, edit file:
+sudo nano /etc/network/interfaces
+# to set the connection to static ip, change
+# its section or add it:
+auto eth0
+iface eth0 inet static
+  address 192.168.1.200
+  gateway 192.168.1.1
+  netmask 255.255.255.0
+  network 192.168.1.0
+  broadcast 192.168.1.255
+# to restart the connections:
+sudo /etc/init.d/networking restart
