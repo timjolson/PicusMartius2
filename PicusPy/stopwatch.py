@@ -24,6 +24,7 @@ class StopWatch():
 
         # Stores current system time in instance's 'begin' variable
         self.begin = time.time()
+        return self.begin
 
     # Define method to get elapsed time
     def lap(self):
