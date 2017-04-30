@@ -4,38 +4,34 @@ import time
 
 
 class PID:
-    # control constants
-    kP = 0.0    # proportional
-    kI = 0.0    # integral
-    kD = 0.0    # derivative
-
-    # status
-    enabled = False  # is controller enabled
-    setpoint = 0.0  # goal for controller to reach
-    control = 0.0   # speed/output value (scale +/- 0.0 to 1.0)
-    error = 0.0     # current error
-    derr = 0.0      # last rate of error change
-
-    # options
-    smooth = False      # smooth maintains control value when setpoint is changed, otherwise it is reset to 0.0
-    refreshTime = 0.02  # time interval (sec) between new calculations
-
-    # backend
-    prevError = 0.0     # previous error
-    integral = 0.0      # integral of the error
-
-    # deadband zone size
-    db = 15
 
     # constructor, pass in constants, refresh interval, and smoothing option
-    def __init__(self, kP, kI, kD, db, refreshTime=0.03, smooth=0):
+    def __init__(self, kP, kI, kD, deadband=0, refreshTime=0.03, smooth=True, add=True):
+        # status
         self.lastCalc = time.time()
+        self.enabled = False  # is controller enabled
+        self.setpoint = 0.0  # goal for controller to reach
+        self.position = 0.0
+        self.control = 0.0  # speed/output value (scale +/- 0.0 to 1.0)
+        self.error = 0.0  # current error
+        self.derr = 0.0  # last rate of error change
+
+        # gains
         self.kP = kP
         self.kI = kI/1000.0
         self.kD = kD
-        self.db = db
-        self.smooth = smooth
-        self.refreshTime = refreshTime
+
+        # option variables
+        self.deadband = deadband                    # deadband zone size
+        self.smooth = smooth            # smooth maintains control value when setpoint is changed, otherwise it is reset to 0.0
+        self.refreshTime = refreshTime  # time interval (sec) between new calculations
+        self.additive = add             # whether control is cumulative or calculated from scratch each time
+
+        # backend variables
+        self.integral = 0.0
+        self.prevPos = None
+        # self.prevError = 0.0
+        self.skipDeriv = True
 
     # get pid value, pass in position and goal
     def get(self, position, setpoint=None):
@@ -45,10 +41,11 @@ class PID:
                 if self.smooth != True:
                     self.control = 0.0
                 # reset integral and update setpoint
-                self.integral = 0.0
+                    self.integral = 0.0
                 self.setpoint = setpoint
 
         # update error
+        self.position = position
         self.error = self.setpoint - position
 
         # if the controller is enabled
@@ -59,29 +56,34 @@ class PID:
             self.dt = now - self.lastCalc
 
             # if it's time to refresh and something weird has not happened (dt more than .5 second)
-            if self.refreshTime < self.dt and self.dt < 0.7:
+            if self.refreshTime < self.dt and self.dt < 0.5:
                 # update integral
-                self.integral = self.integral + self.error
+                self.integral += self.kI * self.error
 
                 # delta error, scale by dt to increase consistency
-                self.derr = self.error - self.prevError
+                # self.derr = self.error - self.prevError
+                self.derr = position - self.prevPos if self.skipDeriv is False else 0.0
+                self.derr /= self.dt
+                self.skipDeriv = False
 
                 # save error
-                self.prevError = self.error
+                # self.prevError = self.error
+                self.prevPos = position
 
-                if abs(self.error) < self.db:
+                if abs(self.error) < self.deadband:
                     # self.error = 0.0
                     self.integral = 0.0
                     self.control = 0.0
                     return self.error, self.control
 
                 # set control speed
-                self.control = self.kP * self.error - self.kI * self.integral + self.kD * self.derr
+                if self.additive:
+                    self.control += self.kP * self.error - self.integral + self.kD * self.derr
+                else:
+                    self.control = self.kP * self.error - self.integral + self.kD * self.derr
 
-                # check for saturation
-                if abs(self.control) > 1.0:
-                    # limit control to +/-1
-                    self.control = -1.0 if self.control < 0.0 else 1.0
+                # check for saturation and limit control to +/-1
+                self.control = -1.0 if self.control < -1.0 else ( 1.0 if self.control > 1.0 else self.control)
 
                 # keep track of when we did this
                 self.lastCalc = now
@@ -93,6 +95,7 @@ class PID:
 
                 # save error
                 self.prevError = self.error
+                self.prevPos = position
 
                 print("PID timing error")
 
@@ -107,19 +110,23 @@ class PID:
         self.integral = 0.0
         self.prevError = 0.0
         self.enabled = False
+        self.skipDeriv = True
 
-    def enable(self):
-        self.disable()
+    def enable(self, pos_=0.0):
+        #self.disable()
+        if self.enabled is False:
+            self.skipDeriv = True
         self.enabled = True
+        self.prevPos = pos_
 
     def setGains(self, kP, kI, kD, enable=0):
         self.kP = kP
         self.kI = kI
         self.kD = kD
-        self.disable()
         if enable == 1 or enable is True:
             self.enable()
-        return self.enabled
+        else:
+            self.disable()
 
     def setSP(self, sp):
         if sp != self.setpoint:
@@ -127,97 +134,69 @@ class PID:
             if self.smooth is not True:
                 self.control = 0.0
             # reset integral and update setpoint
-            self.integral = 0.0
+                self.integral = 0.0
             self.setpoint = sp
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-    from stopwatch import StopWatch
+    from myplot import myplot
+    from datastream import datastream
+    import numpy as np
+
+    errstream = datastream('r','error')
+    positionstream = datastream('b','position')
+    pidstream = datastream('g','PID')
+    goalstream = datastream('k','goal')
+    dat = myplot('PID Example', 'time', 'value', fixed=True, timespan=10, show=True, legend=True, grid=True, showMinMax=False)
+    dat.setY(-10,10)
+    dat.addStream(errstream)
+    dat.addStream(positionstream)
+    dat.addStream(goalstream)
+    dat.addStream(pidstream)
+
     # slow rise tuning
-    thing = PID(0.00001, 0.00, 0.05, 0, 0.05)
-    thing.enable()
-    thing.setSP(0)
-
-    # start position and storage
-    start = time.time()
+    thing = PID(0.5, 0.00, 0., deadband=0, refreshTime=0.05, add=True, smooth=True)
     pos = [-5]  # initial position
-    times = [0]
-    error = [0]
-    speed = [0]
-    setpoint = 0  # initial setpoint
-    set1 = False  # have we changed to first tuning set
-    set2 = False  # have we changed to second tuning set
-    set3 = False  # have we changed to third tuning set
-    set4 = False  # have we changed to third tuning set
-    set5 = False  # have we changed to third tuning set
-    set6 = False  # have we changed to third tuning set
-    set7 = False
+    thing.enable(pos[0])
 
-    t = StopWatch()
-    dt = 0
-    # loop for 20 seconds, changing tuning and setpoint for four setups
-    while dt < 21:
-        dt = time.time()-start
-        if dt > 19 and (not set6):
-            thing.setSP(0)
-            set6 = True
-        elif dt > 16 and (not set5):
-            thing.setSP(-3)
-            set5 = True
-        elif dt > 13 and (not set4):
-            # good tuning
-            thing.setGains(0.15, 0.00, .4, 0, 1)
-            thing.setSP(1)
-            set4 = True
-        elif dt > 8 and (not set3):
-            # oscillating, way underdamped
-            thing.setGains(0.08, 0.0, 0.01, 0)
+    goallist = [-3, 1, 4]
+    goalidx = 0
+
+    kplist = [0.2, 0.0150, 0.000]
+    kdlist = [0.000, 0.0001, 0.005]
+    titlelist = ['slow rise', 'underdamped', 'overshoot', 'well-tuned']
+    gainidx = 0
+
+
+    start = time.time()
+    while dat.loop():
+        time.sleep(0.01)
+        # now = time.time()
+        dt = time.time() - start
+        # start = now
+        goalidx += 1 if np.mod(dt, 6) < 0.045 else 0
+        goalidx = np.mod(goalidx, len(goallist))
+        goal = goallist[goalidx]
+
+        gainidx += 1 if np.mod(dt, 30) < 0.045 else 0
+        gainidx = np.mod(gainidx, len(kplist))
+
+        if np.mod(goalidx,2) == 0:
+            thing.setGains(kplist[gainidx], 0.0, kdlist[gainidx], 0)
             thing.enable()
-            thing.setSP(-2)
-            set3 = True
-        elif dt > 6 and (not set2):
-            thing.setSP(3)
-            set2 = True
-        elif dt > 4 and (not set1):
-            # underdamped
-            thing.setGains(0.05, 0.00, .15, 0, 0)
-            thing.enable()
-            thing.setSP(6)
-            set1 = True
+        else:
+            thing.setGains(kplist[gainidx], 0.0, kdlist[gainidx], 1)
 
-        # if not set7 and t.lap() > 1:
-        #     time.sleep(0.5)
-        #     set7 = True
+        thing.setSP(goal)
 
-        # PID returns error and speed
-        E, S = thing.get(pos[len(pos)-1])
+        E, S = thing.get(pos[len(pos) - 1])
 
-        # store error, speed, time for plotting
-        error.append(E)
-        speed.append(S)
-        times.append(dt)
+        pos.append(pos[len(pos) - 1] + 0.5 * S)
 
-        # update position, increases by 50% speed
-        pos.append(pos[len(pos)-1] + 0.5*S)
+        goalstream.add(dt, goal)
+        errstream.add(dt, E)
+        pidstream.add(dt, S)
+        positionstream.add(dt, thing.position)
 
-        # wait reasonable amount of time before function gets called again
-        time.sleep(.005)
-
-    # plotting
-    plt.plot(times, pos,   'b-', label='position')
-    plt.plot(times, error, 'r-', label='error')
-    plt.plot(times, speed, 'g-', label='PID')
-    plt.plot([min(times), max(times)],[6, 6],'k--',label='goal')
-    plt.plot([min(times), max(times)], [-3, -3], 'k--')
-    plt.plot([min(times), max(times)], [3, 3], 'k--')
-    plt.plot([min(times), max(times)], [1,1], 'b--',label='goal, PID max')
-    plt.plot([min(times), max(times)], [-1, -1], 'b--',label='PID min')
-    plt.plot([min(times), max(times)], [-2,-2], 'b--')
-    plt.plot([min(times), max(times)], [0, 0], 'g--',label='zero')
-    plt.xlabel('time (seconds)')
-    plt.title('slow rise, underdamped, way underdamped, well-tuned')
-    plt.grid(True)
-    plt.legend()
-    plt.show()
-
+        dat.setTitle('PID Example\n' + titlelist[gainidx])
+        dat.show()

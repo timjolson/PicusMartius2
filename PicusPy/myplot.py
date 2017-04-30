@@ -32,7 +32,7 @@ class myplot:
         self.legend = legend
         self.setLims = False
         self.showMM = showMinMax
-        if type(setY) is not None: self.setY(setY[0], setY[1])
+        if setY: self.setY(setY[0], setY[1])
         if show: self.initShow()
 
     def setY(self, a, b):
