@@ -1,5 +1,3 @@
-# This is to simplify UDP communication - David Ziliak
-
 import socket
 from socket import *
 import time
@@ -67,14 +65,16 @@ if __name__ == '__main__':
 
         try:
             rx = otherside.receiveUDP()
+        except:
+            #print("no pickle")
+            pass
+        else:
             if rx:
                 last = curr
                 rx = pickle.loads(rx)
                 print(rx.x)
-        except:
-            #print("no pickle")
-            pass
 
         if curr - start > 30:
             print("time up")
             break
+

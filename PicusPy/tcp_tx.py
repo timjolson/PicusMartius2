@@ -6,7 +6,6 @@ import pickle
 isMain = False
 
 def local_send(port, data="",tried=True):
-    connGood = False
     # make client socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # set socket for quick re-use
@@ -16,15 +15,13 @@ def local_send(port, data="",tried=True):
 
     try:
         sock.connect((Picus.conn24[0], port))
-        connGood = True
     except socket.error as err:
         if err.errno == 10054 or err.errno == 54 or err.errno == 10061 or err.errno == 111:
             pass
         else:
-            # socket err, print and stay in this loop
+            # socket err, print
             print(err)
-
-    if connGood:
+    else:
         try:
             sock.send(pickle.dumps(data,2))
         # socket has an error
@@ -37,12 +34,12 @@ def local_send(port, data="",tried=True):
                     sock.close()
                 except socket.error:
                     pass  # if socket did not exist on .close(), ignore error
-    else:
-        if not tried:
-            sendTCP(port, data, tried=1)
         else:
-            if isMain: print("no receiver")
-            pass
+            if not tried:
+                sendTCP(port, data, tried=1)
+            else:
+                if isMain: print("no receiver")
+                pass
 
 # # send data
 # def sender(data=""):

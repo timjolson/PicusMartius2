@@ -19,13 +19,11 @@ def start_local_receive(port):
     return server
 
 def local_receive(server):
-    connGood = False
     yes_return = False
     server.listen(1)
 
     try:
         connection, addr = server.accept()
-        connGood = True
         # connection is good, bump to next loop
     except socket.timeout:
         # connection timedout, stay in this loop
@@ -33,8 +31,7 @@ def local_receive(server):
     except socket.error as err:
         # connection error, print and stay in this loop
         print(err)
-
-    if connGood:
+    else:
         try:
             rx = connection.recv(1024)
             # try to receive a packet
@@ -43,8 +40,7 @@ def local_receive(server):
             if err.errno == 10054 or err.errno == 54 or err.errno == 10061:
                 print("client lost")
 
-    # process packet
-    if connGood:
+        # process packet
         if rx:
             # have received data and rx != 0
             if type(rx) == bytes:
@@ -130,7 +126,7 @@ def local_receive(server):
 if __name__ == "__main__":
     isMain = True
     start = time.time()
-    serv = start_local_receive(9000) # setup port
+    serv = start_local_receive(9000)  # setup port
 
     # watch for data on setup port
     while time.time() - start < 40:
