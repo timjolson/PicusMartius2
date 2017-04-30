@@ -11,7 +11,7 @@ last = start
 
 droid.wiringPiSetupGpio()
 
-wheel = [172, 210, 173]
+wheel = [19, 30, 29]
 
 for w in wheel:
     droid.pinMode(w, 1)
