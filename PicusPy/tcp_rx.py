@@ -2,7 +2,7 @@ import socket, sys, time
 from picusData import *
 import pickle
 
-
+# flag for when the script is run directly
 isMain = False
 
 def start_local_receive(port):
@@ -12,7 +12,8 @@ def start_local_receive(port):
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     # bind the server address to the server object
-    server.bind((Picus.conn24[0], port))
+    #server.bind((Picus.conn24[0], port))
+    server.bind(('localhost', port))
     # set timeout on the sockets fairly low so things don't get stuck
     server.settimeout(Picus.localTimeout)
 

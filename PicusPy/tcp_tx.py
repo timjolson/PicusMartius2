@@ -14,13 +14,17 @@ def local_send(port, data="",tried=True):
     sock.settimeout(Picus.localTimeout)
 
     try:
-        sock.connect((Picus.conn24[0], port))
+        #sock.connect((Picus.conn24[0], port))
+        sock.connect(('localhost', port))
+    except socket.timeout:
+        pass
     except socket.error as err:
         if err.errno == 10054 or err.errno == 54 or err.errno == 10061 or err.errno == 111:
             pass
         else:
             # socket err, print
             print(err)
+            pass
     else:
         try:
             sock.send(pickle.dumps(data,2))
