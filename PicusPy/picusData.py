@@ -15,7 +15,7 @@ class PicusMode(AutoNumber):
 
 class Picus:
     conn24 = ("192.168.1.200", 7008)  # this is the rover @2.4GHz
-    localTimeout = 0.01  # socket timeout
+    localTimeout = 0.005  # socket timeout
 
     driveTimeout = 0.5  # safety timeout for drive system
     armTimeout = 0.06  # safety timeout for arm system
@@ -26,11 +26,13 @@ class Picus:
     targets = []  # list of target GPS waypoints
 
     mode = PicusMode.standby # rover operating mode
-    local_ports = {'L': 6000, 'R': 6001, 'S': 6002} #
+    local_ports = {'L': 6000, 'R': 6001, 'S': 6002, 'M': 6003}  # ports for tcp communication
+
 
 class Martius:
     conn24 = ("192.168.1.100", 6008)  # this is the controller @2.4GHz
     localTimeout = 0.01  # socket timeout
+
 
 #Header to identify packet type
 class HeaderType(AutoNumber):
@@ -41,6 +43,7 @@ class HeaderType(AutoNumber):
 	Command = ()
 	Photo = ()
 	HighRes = ()
+
 
 #Which command you're sending (when you do)
 class CommandType(AutoNumber):
@@ -57,6 +60,7 @@ class CommandType(AutoNumber):
 	ArmRelease = ()
 	ArmStow = ()
 	ArmUnstow = ()
+
 
 #Status variables
 class StatusStruct():
@@ -188,9 +192,24 @@ class CommandStruct():
 	intVal = 0
 
 
-class PWM():
-	freqRange = 30
-	neutral = 14
-	min = 7
-	max = 22
+class DRIVE():
+	neutral = 189
+	min = 127
+	max = 254
 	range = max - neutral
+
+class STEER():
+	neutral = 127
+	min = 0
+	max = 254
+	range = max - neutral
+
+# Motor Pins
+Left = [5,6,7]
+Right = [2,3,12]
+Steer = [8,9,10,11]
+SteerEnable = [24, 27, 28, 31]
+Arm = [44,45,46]
+
+# ADC Addresses
+ADCaddr = {'Steer':0x48, 'Arm1':0x49, 'Arm2':0x4A, 'Spare':0x4B}
