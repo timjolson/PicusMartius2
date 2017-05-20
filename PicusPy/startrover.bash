@@ -3,6 +3,7 @@
 # python defaultGPIOoff.py
 
 # if [ $? -eq 0 ]; then
+	python3 controller.py
 	python3 radioRover.py
 # else
 #	echo "$OFF"
