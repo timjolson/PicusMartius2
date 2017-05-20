@@ -17,7 +17,7 @@ class Picus:
     conn24 = ("192.168.1.200", 7008)  # this is the rover @2.4GHz
     localTimeout = 0.005  # socket timeout
 
-    driveTimeout = 0.5  # safety timeout for drive system
+    driveTimeout = 0.3  # safety timeout for drive system
     armTimeout = 0.06  # safety timeout for arm system
     sciTimeout = 0.06  # safety timeout for science system
 
@@ -84,6 +84,8 @@ class ControlStruct():
 		self.fb=[0,0,0,0]
 		self.tb=[0,0,0,0]
 		self.dpad=0
+		self.b9=0
+		self.b10=0
 
 
 #GPS coordinates and compass rotation
@@ -207,8 +209,8 @@ class STEER():
 # Motor Pins
 Left = [5,6,7]
 Right = [2,3,12]
-Steer = [8,9,10,11]
-SteerEnable = [24, 27, 28, 31]
+Steer = [11, 10, 8, 9]  # motor 1,3,4,6
+SteerEnable = [24, 27, 28, 31]  # motor 1,3,4,6
 Arm = [44,45,46]
 
 # ADC Addresses
