@@ -89,7 +89,7 @@ class PID:
                 self.lastCalc = now
 
             # dt is sufficient, but it's been a long time since math
-            elif self.dt > self.refreshTime:
+            elif self.dt > self.refreshTime*3:
                 # don't change values that will probably be way wrong, but allow continuation
                 self.lastCalc = now
 
