@@ -1,0 +1,165 @@
+#include "Comms.h"
+#include "..\Common\Variables.h"
+#include "..\Robot1\Robot1.h"
+#include <Arduino.h>
+
+#define SETOPT1 option[currCase]|=1
+#define SETOPT2 option[currCase]|=2
+#define SETOPT3 option[currCase]|=4
+#define SETOPT4 option[currCase]|=8
+#define SETOPT5 option[currCase]|=16
+#define SETOPT6 option[currCase]|=32
+#define SETOPT7 option[currCase]|=64
+#define SETOPT8 option[currCase]|=128
+#define OPT1 ((1&option[currCase])==1)
+#define OPT2 ((2&option[currCase])==2)
+#define OPT3 ((4&option[currCase])==4)
+#define OPT4 ((8&option[currCase])==8)
+#define OPT5 ((16&option[currCase])==16)
+#define OPT6 ((32&option[currCase])==32)
+#define OPT7 ((64&option[currCase])==64)
+#define OPT8 ((128&option[currCase])==128)
+
+extern bool PRINTBACK;
+extern bool GO;
+extern RobotClass NAI;
+
+const int _numChars =10;	//max number of characters per command line
+const int _numValues =10;	//max number of values per command line
+const int _numActions =8;	//max number of things that can occur per command line
+const int _numCases =8;		//max number of different command cases
+
+bool isNumeric(char arg){
+	return (((int) arg)>=48 && ((int) arg)<=57);
+};//returns if a character is a number
+
+void Interpret(char* inCHAR, int* inINT, Stream *serial){
+	byte n=0;	byte c=0;	byte action=0;	byte currCase;
+	byte _case[_numActions]={0};	byte option[_numCases]={0};
+	int val[_numCases][_numValues];
+	
+	for ( ; inCHAR[c]!=0; ){//read until no more characters
+		if (inCHAR[c]=='Z' || inCHAR[c]=='z'){
+        //stop
+			GO = 0;
+            c++;
+			action++;
+		}//end if Z
+		
+        else if (inCHAR[c]=='G' || inCHAR[c]=='g'){
+        //stop
+			GO = 1;
+            c++;
+			action++;
+		}//end if Z
+        
+        else if (inCHAR[c]=='M'){
+			_case[action]=currCase=1;//case 1
+			byte option_last=0;
+			c++;
+			for (bool __exit=0; !__exit; ){
+				if (inCHAR[c]=='V'){ val[currCase][0]=inINT[n];SETOPT1;n++;	}//move
+				if (option_last!=option[currCase]) c++;
+				else	__exit=1;
+				option_last=option[currCase];
+			}//end for
+			action++;
+		}//end if MV
+        
+         else if (inCHAR[c]=='R'){
+			_case[action]=currCase=2;//case 2
+			byte option_last=0;
+			c++;
+			for (bool __exit=0; !__exit; ){
+				if (inCHAR[c]=='R'){ val[currCase][0]=inINT[n];SETOPT1;n++;	}//spin
+                if (inCHAR[c]=='L'){ val[currCase][1]=inINT[n];SETOPT2;n++;	}//spin
+                if (inCHAR[c]=='A'){ val[currCase][2]=inINT[n];SETOPT3;n++; }//set angle
+				if (option_last!=option[currCase]) c++;
+				else	__exit=1;
+				option_last=option[currCase];
+			}//end for
+			action++;
+		}//end if MV
+        
+		else if (inCHAR[c]=='r') {
+			//reset board
+			#define RESTART_ADDR       0xE000ED0C
+			#define READ_RESTART()     (*(volatile uint32_t *)RESTART_ADDR)
+			#define WRITE_RESTART(val) ((*(volatile uint32_t *)RESTART_ADDR) = (val))
+			WRITE_RESTART(0x5FA0004);
+		}
+        
+		else{ serial->println("???");c++;}	// no command for character entered
+		
+	}//end for inCHAR!=0
+	
+	action=0;
+	bool _ran[_numCases]={0};
+	for ( ; (_case[action]!=0)&&(action!=_numActions); action++ )
+	{
+		currCase=_case[action];
+		if (!_ran[currCase]){
+			switch (currCase){
+				case 1://move
+                    NAI.driveRCmecanum(val[currCase][0]);
+				break;
+                case 2://turn
+                    if OPT1{ //RR
+                        serial->print("comms1");serial->println(val[currCase][0]);
+                        NAI.turnRCmecanum(val[currCase][0]);
+                    }
+                    if OPT2{ //RL
+                        serial->print("comms2");serial->println(((int)-1) * val[currCase][1]);
+                        NAI.turnRCmecanum(-1 * val[currCase][1]);
+                    }
+                    else if OPT3{ //RA
+                        serial->print("heading:");serial->println(val[currCase][2]);
+                        NAI.SetHeading(val[currCase][2]*10);
+                    }
+                break;
+                default:
+				serial->print("\n\nComms error! No case " + currCase);//serial->print(currCase);
+				serial->println(" exists...\n");
+				break;
+			}//end switch
+		}//end  !ran currCase
+	}//end for all actions
+}//end Interpret()
+
+void getSerial(Stream *serial){
+	if (serial->available()){
+		int recN[_numValues]={0};
+		char recC[_numChars]={0};
+		byte c=0;
+		byte n=0;
+		boolean isNegative[_numValues]={0};
+		for(int i=0; (serial->available()&&(i<15)); i++)
+		{
+			if (isNumeric(serial->peek()))
+			{//get numeric bytes
+				recN[n]=serial->parseInt();
+				if (isNegative[n])recN[n] *=-1;
+				if (PRINTBACK){
+					serial->print("recN=");
+					serial->println(recN[n]);
+				}//end PRINTBACK
+				n++;
+			}//end numeric
+			else
+			{//get non-numeric
+				char p = serial->read();
+				if (p=='-')isNegative[n]=1;
+				else if ((p!=',')&&(p!='!')){
+					recC[c]=p;
+					if (PRINTBACK){
+						serial->print("recC=");
+						serial->println(recC[c]);
+					}//end PRINTBACK
+					c++;
+				}
+			}//end non-numeric
+		}//end for Serial.available
+		
+		Interpret(recC,recN,serial);
+	}//end if available
+}//end getSerial
