@@ -1,32 +1,32 @@
-# myplot class takes datastream objects and
-# interactively plots them with pyplot.
-# Display options are set in constructor.
-
-# To better understand the options, play with the example
-
+# myplot.py
+# myplot class takes datastream objects and interactively plots them with pyplot.
+# Written by Tim Olson - timjolson@user.noreplay.github.com
+#
+# Example at bottom requires 'numpy'.
+# Will generate curves and live-plot them.
 from datastream import datastream
 from matplotlib import pyplot as plt
+
 
 class myplot:
 
     # class attribute so you can have multiple plots at once (TODO:test that)
     fignum = 1
 
-    # constructor
-    # arguments:
+    # constructor - optionally pass in the arguments:
     # title
     # x label
     # y label
     # fixed - if vertical limits are fixed or dynamically adjust to min/max of data
-    #         (limits will always adjust if data is off-screen)
-    # timespan - duration of data to show
+    #         (regardless, limits will always adjust if data is off-screen)
+    # timespan - duration of data to show (x axis range)
     # grid - whether to show grid on plot
     # show - whether to actually plot the data (object used for storage otherwise)
     # showMinMax - draw lines at min and max data values
     # legend - show legend
-    # setY - manually set y limits (pass in list)
-    def __init__(self, title='', xlab='', ylab='', fixed=True, timespan=5, grid=False, show=False,
-                 showMinMax=False, legend=False, setY=None):
+    # setY - manually set y limits (pass in list or tuple)
+    def __init__(self, title='', xlab='', ylab='', fixed=True, timespan=5, grid=False, 
+                show=False, showMinMax=False, legend=False, setY=None):
         # options
         self.fixed = fixed
         self.timespan = timespan
@@ -51,7 +51,7 @@ class myplot:
         self.permYmin = 0
 
         # min and max x and y values for the figure
-        self.minx = 0
+        self.minx = -timespan
         self.maxx = 0
         self.miny = 0
         self.maxy = 0
@@ -96,8 +96,8 @@ class myplot:
         self.ylabel = lab
 
     # add datastream object to the plot
-    def addStream(self, strm_):
-        self.streams.append(strm_)
+    def addStream(self, strm):
+        self.streams.append(strm)
 
     # update data stream at an index with x and y values
     # pass in as tuple or two values
@@ -113,18 +113,20 @@ class myplot:
         self.ls = []
 
         # set plot min and max's
-        self.minx, self.maxx, self.miny, self.maxy = 0, 0, 0, 0
+        self.minx, self.maxx, self.miny, self.maxy = -self.timespan, 0, 0, 0
 
         # update each stream, track largest and smallest values across all
         # add data to (ls)
         for stream in self.streams:
             stream.update(self.timespan)
-            self.minx = max(stream.minx, self.minx)
             self.maxx = max(stream.maxx, self.maxx)
             self.miny = min(stream.miny, self.miny)
             self.maxy = max(stream.maxy, self.maxy)
             self.ls.append(stream)
-
+        
+        # force x axis range
+        self.minx = self.maxx - self.timespan
+        
         # if limits are automatic
         if self.setLims is False:
             # set display limits by largest/smallest ever data
@@ -138,6 +140,7 @@ class myplot:
             else:
                 # return data, plot limits, min and max y's
                 return self.ls, (self.minx, self.maxx, self.miny, self.maxy), (self.miny, self.maxy)
+        
         # limits are manual
         else:
             # return data, plot limits, min and max y's
@@ -155,14 +158,14 @@ class myplot:
     def isOpen(self):
         return plt.fignum_exists(self.myfignum)
 
-    # clear the plot
+    # clear the plot figure
     def clear(self):
         try:
             plt.clf()
         except:
             pass
 
-    # set up to actually show the plot
+    # set up object to actually show the plot
     def initShow(self):
         # set current figure
         self.fig = plt.figure()
@@ -170,8 +173,8 @@ class myplot:
         self.myfignum = plt.gcf().number
         # disable autoscale
         plt.autoscale(False)
-        # set plotting interactive (updates as it goes)
-        plt.ion()  # set interactive plotting
+        # set plotting interactive (updates as data comes in)
+        plt.ion()
         # we have been initialized for showing plot
         self.inited = True
 
@@ -187,7 +190,7 @@ class myplot:
         if self.legend:
             for STR in substreams:
                 plt.plot(STR.X, STR.Y, STR.style, label=STR.label)
-        # plot data without legend lables
+        # plot data without legend labels
         else:
             for STR in substreams:
                 plt.plot(STR.X, STR.Y, STR.style)
@@ -204,15 +207,15 @@ class myplot:
         if self.grid: plt.grid(True)
 
         # show title and axis labels
-        plt.title(self.title)
-        plt.xlabel(self.xlabel)
-        plt.ylabel(self.ylabel)
+        if self.title != '': plt.title(self.title)
+        if self.xlabel != '': plt.xlabel(self.xlabel)
+        if self.ylabel != '': plt.ylabel(self.ylabel)
 
         # anchor legend top left
         if self.legend: plt.legend(bbox_to_anchor=(0, 1), loc=2, borderaxespad=0.)
 
         # actually display plot (pass in time to pause the data)
-        plt.pause(0.001)
+        plt.pause(0.0001)
 
 
 # example
@@ -221,19 +224,18 @@ if __name__ == "__main__":
     import time
     start = time.time()
 
-    # create a myplot instance
+    ### create a myplot instance
     # there are three ways to set labels
     # 1. individually
     # dat = myplot(True, 5)
     # dat.setTitle('title')
     # dat.setXLabel('x here')
     # dat.setYLabel('y here')
-
+    #
     # 2. in the constructor
     dat = myplot('title', 'x here', 'y here', timespan=6, show=True, legend=True, setY=(-1.5,1.5))
-    # dat.setY(-1,2)
-
-    # 3. all at once, outside constructor
+    #
+    # 3. all at once, not in constructor
     # dat.setLabels('title','x here', 'y here')
 
     # create some datastreams, with plot styles and labels
@@ -247,7 +249,8 @@ if __name__ == "__main__":
     dat.addStream(diff)
 
     # loop through showing data
-    # notice loop() as the while condition, this clears the plot and stops the loop when plot is closed
+    # notice loop() as the while condition, this clears the plot and stops
+    # the loop when the window is closed
     while dat.loop():
         # update time
         now = time.time() - start
