@@ -1,7 +1,11 @@
+# UDP_Library.py
+# UDP_Library class runs UDP communication between two network nodes
+# Written by Tim Olson - timjolson@user.noreplay.github.com
+#
+# Example at bottom is specific to Picus Martius testing.
+# Will print x value from a received ControlStruct object (defined in picusData module)
 import socket
 from socket import *
-import time
-from picusData import *
 import pickle
 
 class UDP_Library():
@@ -20,7 +24,7 @@ class UDP_Library():
 
     def sendDAT(self, message):
         try:
-            self.client_socket.sendto(message, self.address)
+            self.client_socket.sendto(pickle.dumps(message), self.address)
         except:
             print("send dat fail")
             pass
@@ -35,9 +39,11 @@ class UDP_Library():
     def receiveUDP(self):
         try:
             rx, addr = self.client_socket.recvfrom(1024)
-            return rx
+            try:
+                return pickle.loads(rx)
+            except:
+                return None
         except timeout:
-            #print("timeout")
             return 0
         except herror:
             print("herror")
@@ -51,6 +57,9 @@ class UDP_Library():
 
 
 if __name__ == '__main__':
+    import time
+    from picusData import *
+    
     start = time.time()
     last = 0
     myAddr = Picus.conn24
@@ -63,16 +72,10 @@ if __name__ == '__main__':
             last = curr
             print("waiting")
 
-        try:
-            rx = otherside.receiveUDP()
-        except:
-            #print("no pickle")
-            pass
-        else:
-            if rx:
-                last = curr
-                rx = pickle.loads(rx)
-                print(rx.x)
+        rx = otherside.receiveUDP()
+        if rx:
+            last = curr
+            print(rx.x)
 
         if curr - start > 30:
             print("time up")

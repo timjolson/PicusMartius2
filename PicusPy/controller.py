@@ -53,12 +53,12 @@ while(True):
             # apply deadband on y-axis
             if abs(tx.y) < 0.024: tx.y = 0.0
             # make tx structure into packed string and send it to rover
-            rover.sendDAT(pickle.dumps(tx))
+            rover.sendDAT(tx)
 
         # if button 9 is pressed
         if tx.b9:
             # send structure (2nd time)
-            rover.sendDAT(pickle.dumps(tx))
+            rover.sendDAT(tx)
             # break big while loop
             break
 
