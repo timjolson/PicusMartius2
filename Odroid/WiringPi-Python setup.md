@@ -1,0 +1,24 @@
+# install tools
+apt-get install python-setuptools python-dev python3-setuptools python3-dev
+apt-get install swig2.0 pip
+pip install --upgrade pip enum34
+apt-get install i2c-tools
+
+### get wiringPi2
+git clone https://github.com/synthead/WiringPi2-Python.git
+### go into folder
+cd WiringPi2-Python/
+### remove folder
+rm -rf WiringPi/
+### clone wiringPi
+git clone https://github.com/hardkernel/wiringPi
+### go into folder
+cd wiringPi
+### build it
+./build
+### up one folder
+cd ..
+### rename to capital W
+mv wiringPi WiringPi
+### build Pi2-Py
+./build.sh
