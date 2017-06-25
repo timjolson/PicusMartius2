@@ -1,5 +1,7 @@
 # Setup instructions for the Odroid
 
+## Format SD Card as NTFS
+
 ## Get minimal OS image for xu4
 https://odroid.in/ubuntu_16.04lts/
 
@@ -31,43 +33,54 @@ https://odroid.in/ubuntu_16.04lts/
 6. reboot
 7. log in
 8. sudo apt-get update
-make new user account (don't do things in root too much)
-9. sudo adduser WHATEVERUSERNAMEYOUWANT
-give user sudo rights
-10. usermod -aG sudo WHATEVERUSERNAMEYOUWANT
-11. reboot
-12. log in
+9. sudo apt-get upgrade
+# make new user account (don't do things in root too much)
+10. sudo adduser WHATEVERUSERNAMEYOUWANT
+# give user sudo rights
+11. usermod -aG sudo WHATEVERUSERNAMEYOUWANT
+12. reboot
+13. log in
 # use htop to kill processes, view cpu and ram usage, etc
-13. sudo apt-get install htop
+14. sudo apt-get install htop
 
 ## install python3
-1. apt-get install python-setuptools python-dev python3-setuptools python3-dev
-2. apt-get install swig2.0 pip
-3. pip install --upgrade pip enum34
-4. pygame
+1. sudo apt-get install python-setuptools python-dev python3-setuptools python3-dev
+2. sudo apt-get install swig2.0 python-pip python3-pip
+3. sudo pip install --upgrade pip enum34
 
-## to use ADC from Odroid
-# https://github.com/adafruit/Adafruit_Python_ADS1X15
+## to use I2C on Odroid
 1. apt-get install i2c-tools
+# use i2cdetect to see connected devices
+# to use the ADCs on the Odroid
+# https://github.com/adafruit/Adafruit_Python_ADS1X15
 2. apt-get install git build-essential python3-dev
+# make directory
+3. mkdir scripts
+# go into directory
+4. cd scripts
 3. git clone https://github.com/adafruit/Adafruit_Python_ADS1x15.git
 4. cd Adafruit_Python_ADS1x15
-5. sudo python setup.py install
+5. sudo python3 setup.py install
+# install pyserial
+6. sudo pip3 install pyserial
+# install numpy
+7. sudo pip3 install numpy
 
 ## to mount a flash drive
-example:
+# example:
 sudo mount /dev/sda1 /media/usb
+# unmount:
+sudo umount /dev/sda1
 
 ## After all the setup over the internet, set static IP
 # backup file
 1. sudo mv /etc/network/interfaces /etc/network/interfaces.backup
 # copy the 'interfaces' file to /etc/network
 2. sudo cp WHEREVERTHEFILEIS/interfaces /etc/network/
-# restart network connections
-3. sudo /etc/init.d/networking restart
+3. reboot
 # to re-enable DHCP instead of static IP
-1. comment out the whole second block in the interfaces file
-2. reboot or restart network connections
+1. comment out the whole second block in the interfaces file or swap the files
+2. reboot
 
 ## Connection
 1. Connect odroid to switch / radio
