@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#Stream the camera
+
+sudo /usr/local/bin/mjpg_streamer -i "/usr/local/lib/input_uvc.so f:30" -o "/usr/local/lib/output_http.so -w /usr/local/www"
+
