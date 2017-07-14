@@ -1,4 +1,9 @@
-# Joystick Library - started by David Ziliak, heavy modified by Tim Olson
+# joystick_Library.py
+# joystick_Library class uses pygame to monitor and return status
+# of various USB controllers via a ControlStruct object
+# Written by Tim Olson - timjolson@user.noreplay.github.com , inspired by David Ziliak
+#
+# Example at bottom will print x value of a connected controller.
 
 import pygame
 import time # only used for the examples at the bottom
@@ -14,7 +19,7 @@ class joystick_Library():
         # if init does not work
         if(pygame.joystick.get_init()==0):
             self.stat = "invalid"
-            print("Oh fuck, something broke")
+            print("Something broke")
         # if no joysticks are detected
         elif(pygame.joystick.get_count()<1):
             self.stat = "invalid"

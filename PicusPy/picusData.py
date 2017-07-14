@@ -87,7 +87,6 @@ class ControlStruct():
 		self.b9=0
 		self.b10=0
 
-
 #GPS coordinates and compass rotation
 class GPSStruct():
 	lat = 0
@@ -95,19 +94,16 @@ class GPSStruct():
 	alt = 0
 	compass = 0
 
-
 #Absolute Orientation from IMU
 class IMUStruct():
 	roll = 0
 	pitch = 0
 	yaw = 0
 
-
 #Sensor values, can roll all sensors into the one struct
 class SensorStruct():
 	fVal = [0,0]
 	intVal = [0,0]
-
 
 #Stores Cartesian coordinates of each joint, plus rotation and tilt of wrist
 class ArmPositionStruct():
@@ -117,20 +113,17 @@ class ArmPositionStruct():
 	w = 0	#wrist angle
 	r = 0	#wrist rotation
 
-
 #Stores encoder values for each motor with min and max
 class ArmRawStruct():
 	motor = [0,0,0,0,0,0]   #current motor position
 	min = [0,0,0,0,0,0] 	#min motor value (bottom of range)
 	max = [0,0,0,0,0,0] 	#max motor value (top of range)
 
-
 #Packet sent to arm
 class ToArmPacket():
 	status = StatusStruct
 	goal = ArmPositionStruct
 	grip = 0
-
 
 #Packet coming from arm
 class FromArmPacket():
@@ -139,13 +132,11 @@ class FromArmPacket():
 	position = ArmPositionStruct
 	raw = ArmRawStruct
 
-
 #Arm axis PID values
 class ArmPIDVals():
-	kP = [0,0,0,0,0,0,0]
-	kI = [0,0,0,0,0,0,0]
-	kD = [0,0,0,0,0,0,0]
-
+	kP = [0]*6
+	kI = [0]*6
+	kD = [0]*6
 
 #Packet to ROVER
 class ToRoverPacket():
@@ -153,7 +144,6 @@ class ToRoverPacket():
 	operateMode = PicusMode.driving
 	stick = ControlStruct
 	#aux = ControlStruct
-
 
 #Packet from ROVER
 class FromRoverPacket():
@@ -164,35 +154,30 @@ class FromRoverPacket():
 	imu = IMUStruct
 	error = 0
 
-
 #Rover things PID values
 class RoverPIDVals():
-	kP = [0,0,0,0,0,0,0,0,0,0]
-	kI = [0,0,0,0,0,0,0,0,0,0]
-	kD = [0,0,0,0,0,0,0,0,0,0]
-
+	kP = [0]*8
+	kI = [0]*8
+	kD = [0]*8
 
 #Structure that holds a picture, with geolocation and time data
 class PhotoStruct():
 	size = [0,0]
     #dat = image data
-	#sometype timestamp
+    #sometype timestamp
 	location = GPSStruct
 	imu = IMUStruct
-
 
 #Structure for high resolution camera stuff
 class HighResStruct():
 	settingsorsomething = 0
 	photo = PhotoStruct
 
-
 #Struct to send commands to ROVER or Arm
 class CommandStruct():
 	cmdNum = 0
 	fVal = 0.0
 	intVal = 0
-
 
 class DRIVE():
 	neutral = 189
