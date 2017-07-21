@@ -1,32 +1,37 @@
-# myplot.py
-# myplot class takes datastream objects and interactively plots them with pyplot.
-# Written by Tim Olson - timjolson@user.noreplay.github.com
-#
-# Example at bottom requires 'numpy'.
-# Will generate curves and live-plot them.
+'''myplot class takes datastream objects and interactively plots them with pyplot.
+Written by Tim Olson - timjolson@user.noreplay.github.com
+Example requires 'numpy', will generate curves and live-plot them.
+#TODO: replace matplotlib with something faster
+'''
 from datastream import datastream
 from matplotlib import pyplot as plt
 
 
 class myplot:
-
-    # class attribute so you can have multiple plots at once (TODO:test that)
+    '''myplot class takes datastream objects and interactively plots them with pyplot.
+    Written by Tim Olson - timjolson@user.noreplay.github.com
+    Example requires 'numpy', will generate curves and live-plot them.
+    #TODO: replace matplotlib with something faster
+    '''
+    
+    #class attribute so you can have multiple plots at once (TODO:test that)
     fignum = 1
 
-    # constructor - optionally pass in the arguments:
-    # title
-    # x label
-    # y label
-    # fixed - if vertical limits are fixed or dynamically adjust to min/max of data
-    #         (regardless, limits will always adjust if data is off-screen)
-    # timespan - duration of data to show (x axis range)
-    # grid - whether to show grid on plot
-    # show - whether to actually plot the data (object used for storage otherwise)
-    # showMinMax - draw lines at min and max data values
-    # legend - show legend
-    # setY - manually set y limits (pass in list or tuple)
     def __init__(self, title='', xlab='', ylab='', fixed=True, timespan=5, grid=False, 
                 show=False, showMinMax=False, legend=False, setY=None):
+        '''Constructor - optionally pass in the arguments:
+        title
+        x label
+        y label
+        fixed - if vertical limits are fixed or dynamically adjust to min/max of data
+                (regardless, limits will always adjust if data is off-screen)
+        timespan - duration of data to show (x axis range)
+        grid - whether to show grid on plot
+        show - whether to actually plot the data (object used for storage otherwise)
+        showMinMax - draw lines at min and max data values
+        legend - show legend
+        setY - manually set y limits (pass in list or tuple)
+        '''
         # options
         self.fixed = fixed
         self.timespan = timespan
@@ -71,44 +76,51 @@ class myplot:
         # show plot
         if show: self.initShow()
 
-    # set y limits manually
     def setY(self, a, b):
+        '''Set Y limits of plot. They are fixed to these values, unless new ones are specified.
+        '''
         self.setMinY = min(a,b)
         self.setMaxY = max(a,b)
         self.setLims = True
 
-    # set  title and labels
     def setLabels(self, title, xlab, ylab):
-        self.title = title
-        self.xlabel = xlab
-        self.ylabel = ylab
+        '''Set title, x-label, y-label
+        '''
+        self.setTitle(title)
+        self.setXLabel(xlab)
+        self.setYLabel(ylab)
 
-    # set title
     def setTitle(self, title):
+        '''Set title
+        '''
         self.title = title
 
-    # set x label
     def setXLabel(self, lab):
+        '''Set xlabel
+        '''
         self.xlabel = lab
 
-    # set y label
     def setYLabel(self, lab):
+        '''Set ylabel
+        '''
         self.ylabel = lab
 
-    # add datastream object to the plot
     def addStream(self, strm):
+        '''Add datastream object to the plot
+        '''
         self.streams.append(strm)
 
-    # update data stream at an index with x and y values
-    # pass in as tuple or two values
     def updateStream(self, idx, x, y=None):
+        '''Update data stream at an index with x and y values passed in as tuple or two values
+        '''
         if y is None and type(x) is tuple:
             self.streams[idx].add(x)
         else:
             self.streams[idx].add(x, y)
 
-    # get the streams after updating and processing them
     def getStreams(self):
+        '''Get the streams after updating and processing them
+        '''
         # list of datastream points
         self.ls = []
 
@@ -146,27 +158,31 @@ class myplot:
             # return data, plot limits, min and max y's
             return self.ls, (self.minx, self.maxx, self.setMinY, self.setMaxY), (self.miny, self.maxy)
 
-    # use loop() as condition in a while() to:
-    # 1. clear the plot each call
-    # 2. break the while loop when plot is closed
     def loop(self):
+        '''Use loop() as condition in a while() to:
+        1. clear the plot each call
+        2. break the while loop when plot is closed
+        '''
         open = self.isOpen()
         if open: self.clear()
         return open
 
-    # return if plot is open
     def isOpen(self):
+        '''Return whether plot is open
+        '''
         return plt.fignum_exists(self.myfignum)
 
-    # clear the plot figure
     def clear(self):
+        '''Clear the plot figure
+        '''
         try:
             plt.clf()
         except:
             pass
 
-    # set up object to actually show the plot
     def initShow(self):
+        '''Set up object to actually show the plot
+        '''
         # set current figure
         self.fig = plt.figure()
         # get and store the figure number for later
@@ -174,12 +190,13 @@ class myplot:
         # disable autoscale
         plt.autoscale(False)
         # set plotting interactive (updates as data comes in)
-        plt.ion()
+        # plt.ion()
         # we have been initialized for showing plot
         self.inited = True
 
-    # show the plotted data
     def show(self):
+        '''Show the plotted data
+        '''
         # get all updated and processed stream info
         substreams, lims, ylines = self.getStreams()
 

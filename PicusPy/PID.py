@@ -1,20 +1,30 @@
-# PID.py
-# PID closed loop library
-# Written by Tim Olson - timjolson@user.noreplay.github.com
-# 
-# Example at bottom requires 'numpy', and custom modules 'datastream' and 'myplot'.
-# Will live-plot a simulated PID that cycles gain tunings.
+'''PID class applies the standard PID controller, 
+with a few adjustable options and increased functionality.
+Written by Tim Olson - timjolson@user.noreplay.github.com
+Example requires 'numpy', and custom modules 'datastream' and 'myplot'.
+Will live-plot a simulated PID that demonstrates gain tunings.
+'''
 import time
 from picusDependencies import utils
 
-class PID:
 
-    # constructor - pass in gains, deadband, refresh interval,
-    # and whether to accumulate control values
+class PID:
+    '''PID class applies the standard PID controller, 
+    with a few adjustable options and increased functionality.
+    Written by Tim Olson - timjolson@user.noreplay.github.com
+    Example requires 'numpy', and custom modules 'datastream' and 'myplot'.
+    Will live-plot a simulated PID that demonstrates gain tunings.
+    '''
+    
     def __init__(self,
-        kP, kI, kD, deadband=0.0, refreshTime=0.1,
-        add=True, rampUp=0.8, rampDown=None, antiwind=100
+        kP, kI, kD,
+        deadband=0.0, refreshTime=0.1, add=True,
+        rampUp=0.8, rampDown=None, antiwind=None
         ):
+        '''Constructor - pass in gains, deadband, refresh interval,
+        whether to accumulate control values, ramp up time, ramp down time,
+        and antiwind-up value (for integral)
+        '''
         # status
         self.lastCalc = time.time()# track the last time PID was calculated
         self.enabled = False    # is controller enabled
@@ -43,7 +53,7 @@ class PID:
         self.kD = kD        # derivative gain
         
         # anti-windup limit for integral term
-        self.antiwind = 1/max(abs(self.kI), 1e-8)
+        self.antiwind = 1/max(abs(self.kI), 1e-8) if antiwind is None else antiwind
         
         # option variables
         self.deadband = deadband        # deadband zone size (output set to 0 if |error|<deadband
@@ -57,11 +67,12 @@ class PID:
         self.skipDeriv = True   # whether to skip derivative calculation (first cycle after enable() 
                                 # or setpoint change could produce instability)
         
-    # get pid error and control value, pass in position and optionally setpoint
-    # run this all the time/short intervals and run enable() and disable() when needed
-    # 
-    # error, control = obj.get()
     def get(self, position, setpoint=None):
+        '''Get pid error and control value, pass in position and optionally setpoint.
+        Run this all the time/short intervals and run enable() and disable() when needed.
+        error, control = obj.get()
+        '''
+        
         ## a setpoint was passed in
         if setpoint is not None:
             # change setpoint
@@ -157,39 +168,44 @@ class PID:
             # return the error regardless of PID running, and a 0 control value
             return self.error, 0.0
     
-    # disables calculations and control output
     def disable(self):
+        '''Disables calculations and sets control output to 0.0
+        '''
         self.control = 0.0
         self.integral = 0.0
         self.prevError = 0.0
         self.enabled = False
         self.skipDeriv = True
 
-    # enables calculations and control output
-    # optionally pass in the system's position
     def enable(self, pos=0.0):
+        '''Enables calculations and control output.
+        Optionally pass in the system's position.
+        '''
         if self.enabled is False:
             self.skipDeriv = True
         self.enabled = True
         self.prevPos = pos
     
-    # change the calculation gains
-    # pass in all three gains
-    # optionally pass in whether or not to enable() the object at the same time
-    def setGains(self, kP, kI, kD, enable=False):
+    def setGains(self, kP, kI, kD, enable=False, antiwind=None):
+        '''Change the calculation gains.
+        Pass in all three gains.
+        Optionally pass in whether or not to enable() the object at the same time.
+        Default disable()'s the object.
+        '''
         self.kP = kP
         self.kI = kI/1000.0
         self.kD = kD
-        self.antiwind = 1/max(self.kI, 1e-8)
+        self.antiwind = 1/max(self.kI, 1e-8) if antiwind is None else antiwind
         if enable is True:
             self.enable()
         else:
             # if enable not desired, make sure disabled
             self.disable()
     
-    # change the object's setpoint or goal
-    # pass in the setpoint
     def setSP(self, sp):
+        '''Change the object's setpoint or goal.
+        Pass in the setpoint.
+        '''
         # setpoint is different than the last
         if sp != self.setpoint:
             self.skipDeriv = True

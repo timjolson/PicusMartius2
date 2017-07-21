@@ -1,3 +1,5 @@
+'''Runs the rover
+'''
 import sys, time, datetime, serial, os
 from tcp_tx import *
 from tcp_rx import *
