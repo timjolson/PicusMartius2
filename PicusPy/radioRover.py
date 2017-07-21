@@ -1,16 +1,16 @@
 import sys, time, datetime, serial, os
 from tcp_tx import *
 from tcp_rx import *
-from picusData import *
-from picusData import Left, Right, Steer, SteerEnable, ADCaddr
+from picusDependencies import config, packets, utils
 from UDP_Library import *
-import Adafruit_ADS1x15
 from PID import PID
 import numpy as np
+
 
 drivemega = serial.Serial('/dev/ttyACM0', 115200, timeout=0.01)
 # armmega = serial.Serial('/dev/ttyACM1', 115200, timeout=0.01)
 time.sleep(1)
+
 def driveWrite(pin,val):
     try:
         drivemega.write(
@@ -78,50 +78,51 @@ def driveRead():
 #                 print('incomplete')
 #                 return None
 
+# feedback with wheels straight
 centers = [101, 103, 113, 87]
-
-# motor 3
-# motor
+# pids for steering
 PIDlist = [
-    PID(0.002, 0.0, 0.0005, deadband=4, refreshTime=0.01, smooth=True), \
-    PID(-0.0026, 0.0, -0.0005, deadband=4, refreshTime=0.01, smooth=True), \
-    PID(-0.002, 0.0, -0.0005, deadband=4, refreshTime=0.01, smooth=True), \
-    PID(0.0022, 0.0, 0.0005, deadband=4, refreshTime=0.01, smooth=True) \
+    PID(0.002, 0.0, 0.0005, deadband=4, refreshTime=0.01), \
+    PID(-0.0026, 0.0, -0.0005, deadband=4, refreshTime=0.01), \
+    PID(-0.002, 0.0, -0.0005, deadband=4, refreshTime=0.01), \
+    PID(0.0022, 0.0, 0.0005, deadband=4, refreshTime=0.01) \
     ]
 for i, p in enumerate(PIDlist):
     p.enable(centers[i])
     p.setSP(0)
+E = [0] * len(PIDlist)  # position errors
+S = [0] * len(PIDlist)  # speed/output
+
+print("\r\nStarting Rover @" + str(datetime.datetime.fromtimestamp(time.time())))
+
+# addresses (set in picusData)
+myAddr = config.Picus.conn24       # rover @2.4GHz
+ctrlAddr = config.Martius.conn24   # controller @2.4GHz
+
+# create radio object to send and receive
+radio = UDP_Library( myAddr, ctrlAddr)
+# print("receiving on port %d" %(myAddr[1]))
+
+lp = config.Picus.local_ports
+
+# empty control structure so we can read for buttons without
+# received data  ( button 1 stops script on rover )
+rx = packets.ControlStruct()
+
+allDRIVE = config.Left+config.Right
+
+for p in config.SteerEnable:
+    driveWrite(p,254)
+for p in allDRIVE:
+    driveWrite(p, config.DRIVE_vals.neutral)
+for p in config.Steer:
+    driveWrite(p, config.STEER_vals.neutral)
 
 # timing info
 start = time.time() # start of script
 lastPrint = start   # last print for waiting
 lastDat = start     # last received data
 lastSteer = start   # last steering info
-
-print("\r\nStarting Rover @" + str(datetime.datetime.fromtimestamp(start)))
-
-# addresses (set in picusData)
-myAddr = Picus.conn24       # rover @2.4GHz
-ctrlAddr = Martius.conn24   # controller @2.4GHz
-
-# create radio object to send and receive
-radio = UDP_Library( myAddr, ctrlAddr)
-# print("receiving on port %d" %(myAddr[1]))
-
-lp = Picus.local_ports
-
-# empty control structure so we can read for buttons without
-# received data  ( button 1 stops script on rover )
-rx = ControlStruct()
-
-allDRIVE = Left+Right
-
-for p in SteerEnable:
-    driveWrite(p,254)
-for p in allDRIVE:
-    driveWrite(p, DRIVE.neutral)
-for p in Steer:
-    driveWrite(p, STEER.neutral)
 
 try:
     # DO ALL OF THIS
@@ -138,10 +139,8 @@ try:
 
         # update feedback
         steerAngles = driveRead()
-        if type(steerAngles) != None:
+        if steerAngles is not None:
             lastSteer = curr
-            E = [0] * len(PIDlist)
-            S = [0] * len(PIDlist)
             for i, a in enumerate(steerAngles):
                 steerAngles[i] = steerAngles[i] - centers[i]
 
@@ -175,8 +174,8 @@ try:
                 # we received a control packet
                 if type(rx) == ControlStruct:
                     lastDat = curr  # update last good data time
-                    for p in Left: driveWrite(p, DRIVE.neutral + int(rx.z * DRIVE.range))
-                    for p in Right: driveWrite(p, DRIVE.neutral + int(-1 * rx.z * DRIVE.range))
+                    for p in config.Left: driveWrite(p, config.DRIVE_vals.neutral + int(rx.z * config.DRIVE_vals.range))
+                    for p in config.Right: driveWrite(p, config.DRIVE_vals.neutral + int(-1 * rx.z * config.DRIVE_vals.range))
 
                     # button is not pressed
                     if not rx.tb[0]:
@@ -193,41 +192,41 @@ try:
                     # button IS pressed
                     else:
                         # don't steer
-                        for p in Steer: driveWrite(p, STEER.neutral)
+                        for p in config.Steer: driveWrite(p, config.STEER_vals.neutral)
                         dontSteer = True
 
         # did not receive data, timed-out
-        elif (curr - lastDat) > Picus.driveTimeout:
+        elif (curr - lastDat) > config.Picus.driveTimeout:
             # stop motors
-            for p in Left: driveWrite(p, DRIVE.neutral)
-            for p in Right: driveWrite(p, DRIVE.neutral)
-            for p in Steer: driveWrite(p, STEER.neutral)
+            for p in config.Left: driveWrite(p, config.DRIVE_vals.neutral)
+            for p in config.Right: driveWrite(p, config.DRIVE_vals.neutral)
+            for p in config.Steer: driveWrite(p, config.STEER_vals.neutral)
 
         # did not receive data, but did not time-out
-        if (curr - lastDat) < Picus.driveTimeout:
+        if (curr - lastDat) < config.Picus.driveTimeout:
             # no rx, not getting feedback
-            if curr - lastSteer > Picus.driveTimeout:
+            if curr - lastSteer > config.Picus.driveTimeout:
                 # stop motors
-                for p in Left: driveWrite(p, DRIVE.neutral)
-                for p in Right: driveWrite(p, DRIVE.neutral)
-                for p in Steer: driveWrite(p, STEER.neutral)
+                for p in config.Left: driveWrite(p, config.DRIVE_vals.neutral)
+                for p in config.Right: driveWrite(p, config.DRIVE_vals.neutral)
+                for p in config.Steer: driveWrite(p, config.STEER_vals.neutral)
             # no rx, but are getting feedback
             else:
                 if dontSteer is False:
                     # update PIDs
                     for i, p in enumerate(PIDlist):
-                        E[i], S[i] = PIDlist[i].get(steerAngles[i])
+                        E[i], S[i] = PIDlist[i].get(steerAngles[i] if steerAngles is not None else 0.0)
                         # write their values
-                        driveWrite(Steer[i], int(S[i] * STEER.range) + STEER.neutral)
+                        driveWrite(config.Steer[i], int(S[i] * config.STEER_vals.range) + config.STEER_vals.neutral)
                         # try:
                         #     if keepx:
-                        #         print(int(keepx * STEER.range) + STEER.neutral)
-                        #         driveWrite(Steer[i], int(keepx * STEER.range) + STEER.neutral)
+                        #         print(int(keepx * config.STEER_vals.range) + config.STEER_vals.neutral)
+                        #         driveWrite(config.Steer[i], int(keepx * config.STEER_vals.range) + config.STEER_vals.neutral)
                         # except:
                         #     pass
                 else:
                     # don't steer
-                    for p in Steer: driveWrite(p, STEER.neutral)
+                    for p in config.Steer: driveWrite(p, config.STEER_vals.neutral)
 
         # print('a:%1.2f\ts:%1.2f\ta:%1.2f\ts:%1.2f\ta:%1.2f\ts:%1.2f\ta:%1.2f\ts:%1.2f\t'
         #       %(steerAngles[0], PIDlist[0].setpoint, steerAngles[1], PIDlist[1].setpoint,
@@ -252,11 +251,11 @@ except KeyboardInterrupt:
 
 
 for p in allDRIVE:
-    driveWrite(p, DRIVE.neutral)
-for p in SteerEnable:
+    driveWrite(p, config.DRIVE_vals.neutral)
+for p in config.SteerEnable:
     driveWrite(p,0)
-for p in Steer:
-    driveWrite(p, STEER.neutral)
+for p in config.Steer:
+    driveWrite(p, config.STEER_vals.neutral)
 
 drivemega.close()
 # armmega.close()
