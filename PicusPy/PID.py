@@ -5,13 +5,16 @@
 # Example at bottom requires 'numpy', and custom modules 'datastream' and 'myplot'.
 # Will live-plot a simulated PID that cycles gain tunings.
 import time
-
+from picusDependencies import utils
 
 class PID:
 
     # constructor - pass in gains, deadband, refresh interval,
     # and whether to accumulate control values
-    def __init__(self, kP, kI, kD, deadband=0.0, refreshTime=0.1, add=True, rampUp=0.8, rampDown=None):
+    def __init__(self,
+        kP, kI, kD, deadband=0.0, refreshTime=0.1,
+        add=True, rampUp=0.8, rampDown=None, antiwind=100
+        ):
         # status
         self.lastCalc = time.time()# track the last time PID was calculated
         self.enabled = False    # is controller enabled
@@ -38,6 +41,9 @@ class PID:
         self.kP = kP        # proportional gain
         self.kI = kI/1000.0 # integral gain
         self.kD = kD        # derivative gain
+        
+        # anti-windup limit for integral term
+        self.antiwind = 1/max(abs(self.kI), 1e-8)
         
         # option variables
         self.deadband = deadband        # deadband zone size (output set to 0 if |error|<deadband
@@ -77,6 +83,7 @@ class PID:
                 ## update integral
                 # adding right into the term removes large jumps on setpoint change
                 self.integral += self.kI * self.error * self.dt
+                self.integral = utils.constrain(self.integral, self.antiwind)
                 
                 ## delta error
                 # self.derr = self.error - self.prevError # superseded by change 
@@ -106,15 +113,15 @@ class PID:
                 accel = new_control if self.additive is True or self.additive == 1 else new_control - self.control
                 
                 ## apply ramping limits
-                # when close to stopped, use rampUp either direction
-                if abs(self.control)<0.05:
-                    temp = -RU if accel < -RU else ( RU if accel > RU else new_control)
+                # when close to stopped (<3%), use rampUp either direction
+                if abs(self.control)<0.03:
+                    temp = utils.constrain_decider(accel, -RU, RU, new_control)
                 # when going forward, use rampDown if new_control < 0 == decelerating
                 elif self.control>0:
-                    temp = -RD if accel < -RD else ( RU if accel > RU else new_control)
+                    temp = utils.constrain_decider(accel, -RD, RU, new_control)
                 # when going reverse, use rampDown if new_control > 0 == decelerating
                 else: # self.control<0:
-                    temp = -RU if accel < -RU else ( RD if accel > RD else new_control)
+                    temp = utils.constrain_decider(accel, -RU, RD, new_control)
                 
                 ## set control value
                 # it's either cumulative or from scratch
@@ -124,7 +131,7 @@ class PID:
                     self.control = temp
                 
                 ## check for saturation and limit control to +/-1
-                self.control = -1.0 if self.control < -1.0 else ( 1.0 if self.control > 1.0 else self.control)
+                self.control = utils.constrain(self.control, 1.0)
             
             ## if dt is sufficient to refresh, but it's been a long time 
             ## since math (prone to large error or jumps)
@@ -160,19 +167,20 @@ class PID:
 
     # enables calculations and control output
     # optionally pass in the system's position
-    def enable(self, pos_=0.0):
+    def enable(self, pos=0.0):
         if self.enabled is False:
             self.skipDeriv = True
         self.enabled = True
-        self.prevPos = pos_
+        self.prevPos = pos
     
     # change the calculation gains
     # pass in all three gains
     # optionally pass in whether or not to enable() the object at the same time
     def setGains(self, kP, kI, kD, enable=False):
         self.kP = kP
-        self.kI = kI
+        self.kI = kI/1000.0
         self.kD = kD
+        self.antiwind = 1/max(self.kI, 1e-8)
         if enable is True:
             self.enable()
         else:
@@ -206,7 +214,7 @@ if __name__ == "__main__":
     # sets of gains
     kplist = [0.01, 0.20, 0.20, 0.20]
     kilist = [0.00, 0.00, 0.00, 0.00]
-    kdlist = [0.015, 0.035, 0.075, 0.091]
+    kdlist = [0.015, 0.035, 0.075, 0.095]
     gainidx = 0 # choose set of starting gains
     
     # make datastream objects, where we store data points 
