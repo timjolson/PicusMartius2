@@ -24,7 +24,7 @@ https://odroid.in/ubuntu_16.04lts/
 4. connect to an internet source
 5. connect power last, will boot automatically
 
-### update Odroid
+## Update Odroid
 1. default user/password is root/odroid
 2. sudo apt-get update
 3. sudo apt-get upgrade
@@ -35,85 +35,60 @@ https://odroid.in/ubuntu_16.04lts/
 8. sudo apt-get update
 9. sudo apt-get upgrade
 
-### make new user account
-(don't do things in root too much)
+### Make new user account
+#### (don't do things in root too much)
 1. sudo adduser WHATEVERUSERNAMEYOUWANT
-2. give user sudo rights
-3. usermod -aG sudo WHATEVERUSERNAMEYOUWANT
-4. reboot
+#### give user sudo rights
+2. usermod -aG sudo WHATEVERUSERNAMEYOUWANT
+3. reboot
 
-### install python
+### Install python
 1. sudo apt-get install python-setuptools python-dev python3-setuptools python3-dev
 2. sudo apt-get install swig2.0 python-pip python3-pip
 3. sudo pip install --upgrade pip enum34
 
-### install other tools
-Use htop to kill processes, view cpu and ram usage, etc
-
+### Install other tools
+#### Use htop to kill processes, view cpu and ram usage, etc
 1. sudo apt-get install htop
-
-Use i2c tool's 'i2cdetect' to detect device addresses
-
+#### Use i2c tool's 'i2cdetect' to detect device addresses
 2. apt-get install i2c-tools
+#### Install pyserial
+3. sudo pip install pyserial
+#### Install numpy
+4. sudo pip install numpy
+#### Install pygame
+5. sudo pip install pygame
 
-Install pyserial
-
-3. sudo pip3 install pyserial
-
-Install numpy
-
-4. sudo pip3 install numpy
-
-### to use the ADCs on the Odroid
-https://github.com/adafruit/Adafruit_Python_ADS1X15
+### To use the ADCs on the Odroid
+#### get package from Adafruit
+#### https://github.com/adafruit/Adafruit_Python_ADS1X15
 1. apt-get install git build-essential python3-dev
-
-make directory
-
+#### make directory
 2. mkdir scripts
-
-go into directory
-
+#### go into directory
 3. cd scripts
-
-download files
-
+#### download files
 4. git clone https://github.com/adafruit/Adafruit_Python_ADS1x15.git
-
-go into directory
-
+#### go into directory
 5. cd Adafruit_Python_ADS1x15
+#### install the tool
+6. sudo python setup.py install
 
-install the tool
-
-6. sudo python3 setup.py install
-
-### connecting external storage
-make directory to mount into
-
-mkdir /media/usb
-
-mount:
-
-sudo mount /dev/sda1 /media/usb
-
-unmount:
-
-sudo umount /dev/sda1
+### Connecting external storage
+#### make directory to mount into
+1. mkdir /media/usb
+#### mount:
+1. sudo mount /dev/sda1 /media/usb
+#### unmount:
+1. sudo umount /dev/sda1
 
 ### After all the setup over the internet, set static IP
-backup network settings file
-
+#### backup network settings file
 1. sudo mv /etc/network/interfaces /etc/network/interfaces.dhcp
-
-copy the 'interfaces' file to /etc/network
-
+#### copy the 'interfaces' file to /etc/network
 2. sudo cp WHEREVERTHEFILEIS/interfaces /etc/network/
-
 3. reboot
-
-to re-enable DHCP instead of static IP
-
+#### to re-enable DHCP instead of static IP
 1. comment out the whole second block in the interfaces file or swap the files
 2. reboot
 
@@ -125,18 +100,18 @@ to re-enable DHCP instead of static IP
 1. Putty - ssh for commands / terminal stuff
 2. WinSCP - for file access / drag & drop
 
-### for executable bash scripts
+### For executable bash scripts
 1. Make your script
 2. first line must be #!/bin/bash
 3. sudo chmod +x SCRIPT
 4. run with: ./SCRIPT
 
-multiple command syntax
-
-A; B    Run A and then B, regardless of success of A
-
-A && B  Run B if A succeeded
-
-A || B  Run B if A failed
-
-A &     Run A in background
+### Multiple command syntax
+#### Run A and then B, regardless of success of A
+A; B
+#### Run B if A succeeded
+A && B
+#### Run B if A failed
+A || B
+#### Run A in background
+A &
