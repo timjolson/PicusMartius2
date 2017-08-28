@@ -2,7 +2,7 @@ import configparser
 
 # create parser and file path
 config = configparser.ConfigParser()
-filename = 'C:/Users/T/Desktop/c.picus'
+filename = './picus.config'
 fileexist = False
 
 # try to read file, if not exist, returns empty
@@ -14,8 +14,8 @@ except configparser.NoOptionError:
     print('no option')
 
 try:
-    print(len(settings))
-    if ~len(settings):
+    print('file length: {}'.format(len(settings)))
+    if not len(settings):
         print('no file: '+filename)
         print('creating file: '+filename)
         with open(filename, 'w') as f:
@@ -46,6 +46,6 @@ try:
     kD = config.getfloat('PID Values', 'kD')
     # config.getint()
     # config.
-    print(kP)
+    print('kP= {}'.format(kP))
 except:
     pass
