@@ -1,5 +1,5 @@
 import socket, sys, time
-from picusData import *
+from picuspy.comms import settings
 import pickle
 
 # flag for when the script is run directly
@@ -15,7 +15,7 @@ def start_local_receive(port):
     #server.bind((Picus.conn24[0], port))
     server.bind(('localhost', port))
     # set timeout on the sockets fairly low so things don't get stuck
-    server.settimeout(Picus.localTimeout)
+    server.settimeout(settings.Picus.localTimeout)
 
     return server
 

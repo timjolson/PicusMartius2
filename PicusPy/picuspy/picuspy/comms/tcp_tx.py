@@ -1,5 +1,5 @@
 import socket, sys, time
-from picusData import *
+from picuspy.comms import settings
 import pickle
 
 # flag for when the script is run directly
@@ -11,7 +11,7 @@ def local_send(port, data="",tried=True):
     # set socket for quick re-use
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-    sock.settimeout(Picus.localTimeout)
+    sock.settimeout(settings.Picus.localTimeout)
 
     try:
         #sock.connect((Picus.conn24[0], port))
