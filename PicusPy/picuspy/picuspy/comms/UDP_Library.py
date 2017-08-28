@@ -10,28 +10,28 @@ import pickle
 
 class UDP_Library():
 
-    def __init__(self, myAddr, address):
-        self.address = address
-
+    def __init__(self, my_addr, their_addr, timeout=0.001):
+        self.addr = their_addr
+        
         self.client_socket = socket(AF_INET, SOCK_DGRAM) #Set up the Socket
         try:
-            self.client_socket.bind(myAddr) # this is me
-        except error as err:
+            self.client_socket.bind(my_addr) # this is me
+        except OSError as err:
             if err.errno == 10049:
-                raise Exception("\r\r\n\nAddress error, try setting machine static IP or updating myAddr in the script...")
+                print("\n*****\nAddress error, try setting machine static IP or updating myAddr in the script...")
 
-        self.client_socket.settimeout(Picus.localTimeout) #Only wait .1 second for a response
+        self.client_socket.settimeout(timeout) #Only wait .1 second for a response
 
     def sendDAT(self, message):
         try:
-            self.client_socket.sendto(pickle.dumps(message), self.address)
+            self.client_socket.sendto(pickle.dumps(message), self.addr)
         except:
             print("send dat fail")
             pass
 
     def sendTXT(self, message):
         try:
-            self.client_socket.sendto(message.encode('utf-8'), self.address)
+            self.client_socket.sendto(message.encode('utf-8'), self.addr)
         except:
             print("send text fail")
             pass

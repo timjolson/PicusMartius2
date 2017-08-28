@@ -1,7 +1,7 @@
 '''Define communication settings, motor pins, and PWM values
 for Picus(Rover) and Martius(Controller)
 '''
-from picusEnum import *
+from picuspy.utils.enum import *
 
 
 class Picus:

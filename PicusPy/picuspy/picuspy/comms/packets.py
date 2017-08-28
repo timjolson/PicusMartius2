@@ -1,6 +1,6 @@
 '''Define packet types and structures for communication
 '''
-from picusEnum import *
+from ..utils.enum import *
 
 #TODO: integrate Lightweight Communications and Marshalling (LCM) (http://lcm-proj.github.io/) or ROS
 
@@ -62,18 +62,8 @@ class StatusStruct():
 class ControlStruct():
     '''Joystick data
     '''
-    def __init__(self):
-        self.clear()
-    def clear(self):
-        self.x = 0
-        self.y = 0
-        self.z = 0
-        self.w = 0
-        self.fb=[0,0,0,0]
-        self.tb=[0,0,0,0]
-        self.dpad=0
-        self.b9=0
-        self.b10=0
+    def __init__(self, data=dict()):
+        self.data = data
 
 #GPS coordinates and compass rotation
 class GPSStruct():

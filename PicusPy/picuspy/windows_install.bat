@@ -1,0 +1,1 @@
+%windir%\system32\cmd.exe /k python setup.py install
