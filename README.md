@@ -1,6 +1,16 @@
 # PicusMartius
 Software for operating the rover
 
+## PicusPy
+Contains the picuspy package and examples, and pyDuino arduino sketches (in progress, move to libraries when done)
+
+## Odroid
+Contains scripts, examples, documents for setting up Odroid xu4
+
+## MEE623
+Contains vision class roomba project from two groups
+
+
 ## Python3
 Anaconda
 https://www.continuum.io/downloads
