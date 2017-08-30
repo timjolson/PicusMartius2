@@ -1,5 +1,5 @@
 from picuspy.utils import multi_proc # add_process() and remove_inactive()
-from multiprocessing import active_children
+from multiprocessing import active_children, Lock
 
 import time # general timing
 
@@ -13,6 +13,9 @@ processes = dict()
 #             (function3, daemon) ]
 funcs_to_run = []
 
+
+# locks so processes can do things without interferring
+locks = {'print':Lock(), 'serial_1':Lock(), 'log_1':Lock(), 'transmit':Lock(), 'receive':Lock()}
 
 ########
 # make functions or import them to be run in parallel
@@ -96,19 +99,20 @@ if __name__ == '__main__':
     #######
     # run the processes
     for func in funcs_to_run:
-        multi_proc.add_process(processes, func)
+        multi_proc.add_process(processes, locks, func)
     
     #######
     # monitor processes(except daemons and ignored) for end, do something also
-    while multi_proc.multi_loop(processes, ignore=['joysticks']):
-        print('X') #heartbeat
+    while multi_proc.multi_loop(processes, locks, ignore=['joysticks']):
+        with locks['print']:
+            print('X') #heartbeat
         time.sleep(1)
     
     # after all but daemons and ignored have ended
     else:
         #######
         # add individual process whenever, up until cleanup()
-        multi_proc.add_process(processes, (test_active, False))
+        multi_proc.add_process(processes, locks, (test_active, False))
         
         
         #######
@@ -116,7 +120,7 @@ if __name__ == '__main__':
         # in this example, the above WHILE runs until the only
         # remaining processes are daemons or specified in multi_loop()
         # to be treated as daemons
-        multi_proc.cleanup(processes, wait_for_daemons=False)
+        multi_proc.cleanup(processes, locks, wait_for_daemons=False)
         
         if len(active_children())>0:
             print(active_children())
