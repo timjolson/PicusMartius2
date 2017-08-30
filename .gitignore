@@ -1,6 +1,3 @@
 *.pyc
 *.xml
 *.iml
-PicusPy/picuspy/build/*
-PicusPy/picuspy/dist/*
-PicusPy/picuspy/picuspy.egg*
