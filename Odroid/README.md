@@ -44,20 +44,34 @@ https://odroid.in/ubuntu_16.04lts/
 
 ### Install python
 1. sudo apt-get install python-setuptools python-dev python3-setuptools python3-dev
-2. sudo apt-get install swig2.0 python-pip python3-pip
-3. sudo pip install --upgrade pip enum34
+2. sudo apt-get install swig3.0 python-pip python3-pip
+
+### WiringPi2
+#### Will use hardkernel repo at https://github.com/hardkernel/WiringPi2-Python
+1. sudo apt-get install git
+#### Clone repo to a reasonable directory
+3. git clone https://github.com/hardkernel/WiringPi2-Python.git
+#### Enter repo folder
+4. cd WiringPi2-Python
+#### Do git stuff
+5. git submodule init
+6. git submodule update
+#### Compile stuff
+7. swig3.0 -python -threads wiringpi.i
+#### Install for python
+8. sudo python3 setup.py install
+#### Test
+9. sudo nano test.py
+10. change the **print XXXX** lines to **print(XXXX)** for python3
+11. save and close test.py
+12. sudo python3 test.py
+
 
 ### Install other tools
 #### Use htop to kill processes, view cpu and ram usage, etc
 1. sudo apt-get install htop
 #### Use i2c tool's 'i2cdetect' to detect device addresses
 2. apt-get install i2c-tools
-#### Install pyserial
-3. sudo pip install pyserial
-#### Install numpy
-4. sudo pip install numpy
-#### Install pygame
-5. sudo pip install pygame
 
 ### To use the ADCs on the Odroid
 #### get package from Adafruit
@@ -100,6 +114,7 @@ https://odroid.in/ubuntu_16.04lts/
 1. Putty - ssh for commands / terminal stuff
 2. WinSCP - for file access / drag & drop
 
+## BASH
 ### For executable bash scripts
 1. Make your script
 2. first line must be #!/bin/bash
