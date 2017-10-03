@@ -49,48 +49,17 @@ https://odroid.in/ubuntu_16.04lts/
 
 ## Installations
 
-### Install python
-1. sudo apt-get install python-setuptools python-dev python3-setuptools python3-dev
-2. sudo apt-get install swig3.0 python-pip python3-pip git build-essential
----
-
-### Install other tools
+### Install a few tools
 #### Use htop to kill processes, view cpu and ram usage, etc
 1. sudo apt-get install htop
 #### Use i2c tool's 'i2cdetect' to detect device addresses
 2. apt-get install i2c-tools
 ---
 
-### To use onboard GPIO with WiringPi2
-#### Will use hardkernel repo at https://github.com/hardkernel/WiringPi2-Python
-#### Clone repo to a reasonable directory
-1. git clone https://github.com/hardkernel/WiringPi2-Python.git
-#### Enter repo folder
-2. cd WiringPi2-Python
-#### Do git stuff
-3. git submodule init
-4. git submodule update
-#### Compile stuff
-5. swig3.0 -python -threads wiringpi.i
-#### Install for python
-6. sudo python3 setup.py install
-#### Test
-7. sudo nano test.py
-8. change the **print XXXX** lines to **print(XXXX)** for python3
-9. save and close test.py
-10. sudo python3 test.py
----
-
-### To use the ADCs on the Odroid
-#### Use package from Adafruit https://github.com/adafruit/Adafruit_Python_ADS1X15
-#### Clone repo to reasonable directory
-1. git clone https://github.com/adafruit/Adafruit_Python_ADS1x15.git
-#### Go into directory
-2. cd Adafruit_Python_ADS1x15
-#### Install the tool
-3. sudo python3 setup.py install
-#### Test
-4. TODO
+### To use picuspy package
+Follow installation instructions at
+  https://github.com/NIURoverTeam/picuspy/blob/master/installs.txt
+  
 ---
 
 ### Connecting external storage
