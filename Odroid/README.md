@@ -58,7 +58,7 @@ https://odroid.in/ubuntu_16.04lts/
 
 ### To use picuspy package
 Follow installation instructions at
-  https://github.com/NIURoverTeam/picuspy/blob/master/installs.txt
+  https://github.com/NIURoverTeam/picuspy/blob/master/installs.md
   
 ---
 
