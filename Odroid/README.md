@@ -1,3 +1,10 @@
+# Interfacing with single-board computers
+**Putty** allows remote connection to networked boards. Access through shell/command line can be expanded to include windowed objects using X, X11, and similar (https://en.wikipedia.org/wiki/X_Window_System).
+http://portableapps.com/apps/internet/putty_portable
+
+**WinSCP** allows remote connection with simple file management through familiar explorer style windows.
+http://portableapps.com/apps/internet/winscp_portable
+
 # Setup instructions for the Odroid
 
 ## On separate machine
