@@ -4,4 +4,4 @@
 sudo python3 controller.py & sudo python3 radioRover.py
 
 # after successful run of first command, run second
-# sudo python3 && sudo python3 radioRover.py
+# sudo python3 controller.py && sudo python3 radioRover.py
