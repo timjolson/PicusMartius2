@@ -56,7 +56,26 @@ https://odroid.in/ubuntu_16.04lts/
 
 ## Installations
 
-### Install a few tools
+### To assist in offline/repeated setup on Ubuntu/SBCs:
+#### Use bash scripts from [PicusMartius/Odroid/install_offline](https://github.com/niuroverteam/PicusMartius/tree/master/Odroid/install_offline)
+#### To use them, first
+    # make each script executable
+    chmod +x SCRIPT
+#### Each time a script is run, a directory can be provided {-p}
+    # specify download to path / restore from path / install from path
+    ./SCRIPT -p DOWNLOADPATH
+#### Each script can download a local repository of packages {-d}
+    # download relevant packages
+    ./SCRIPT -d
+#### The py_deps and linux_deps scripts support installation from the local repo {-i}
+    # install relevant packages
+    ./SCRIPT -i
+#### The linux_deps and ros_deps support restoring downloaded packages to the system's apt-get cache directory {-r}
+    # restore relevant packages
+    ./SCRIPT -r
+    # packages may then be installed from cache with standard apt-get, without specifying a package path
+
+### Install a few tools *(included when using the offline bash scripts)*
 #### Use htop to kill processes, view cpu and ram usage, etc
 1. sudo apt-get install htop
 #### Use i2c tool's 'i2cdetect' to detect device addresses
