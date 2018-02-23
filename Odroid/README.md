@@ -1,18 +1,20 @@
 # Interfacing with single-board computers
-**Putty** allows remote connection to networked boards. Access through shell/command line can be expanded to include windowed objects using X, X11, and similar (https://en.wikipedia.org/wiki/X_Window_System).
-http://portableapps.com/apps/internet/putty_portable
+[**Putty**](http://portableapps.com/apps/internet/putty_portable)
 
-**WinSCP** allows remote connection with simple file management through familiar explorer style windows.
-http://portableapps.com/apps/internet/winscp_portable
+Allows remote connection to networked boards. Access through shell/command line can be expanded to include windowed objects using [X, X11, and similar](https://en.wikipedia.org/wiki/X_Window_System).
+
+[**WinSCP**](http://portableapps.com/apps/internet/winscp_portable)
+
+Allows remote connection with simple file management through explorer style windows, with drag/drop option.
 
 # Setup instructions for the Odroid
 
 ## On separate machine
 
 ### Format SD Card as FAT
-if SD Card is already setup to boot, format the partition named *boot*
+If SD Card is already setup to boot, format the partition named *boot*.
 
-### Get minimal OS image for xu4
+### Get minimal OS image for "XU4"
 https://odroid.in/ubuntu_16.04lts/
 
 ### Install on computer (portables exist for most):
@@ -37,45 +39,54 @@ https://odroid.in/ubuntu_16.04lts/
 5. connect power last, will boot automatically
 
 ### Update Odroid
-1. default user/password is root/odroid
-2. sudo apt-get update
-3. sudo apt-get upgrade
-4. accept recommendations / if console settings comes up, hit ENTER on each page
-5. sudo apt-get dist-upgrade
-6. reboot
-7. log in
-8. sudo apt-get update
-9. sudo apt-get upgrade
+Default user/password is root/odroid
+    
+    # Update package version lists
+    sudo apt-get update
+    # Update packages
+    sudo apt-get upgrade
+    # accept recommendations / if console settings comes up, hit ENTER on each page
+    # Update kernel
+    sudo apt-get dist-upgrade
+    sudo reboot now
+    # Log in
+    # Check for updates again
+    sudo apt-get update
+    sudo apt-get upgrade
 
 ### Make new user account (don't do things in root too much)
-1. sudo adduser WHATEVERUSERNAMEYOUWANT
-#### Give user sudo rights
-2. usermod -aG sudo WHATEVERUSERNAMEYOUWANT
-3. reboot
+    
+    # Make user
+    sudo adduser WHATEVERUSERNAMEYOUWANT
+    # Give user sudo rights
+    usermod -aG sudo WHATEVERUSERNAMEYOUWANT
+    sudo reboot now
 ---
 
 ## Installations
 
 ### To assist in offline/repeated setup on Ubuntu/SBCs:
 #### Use bash scripts from [PicusMartius/Odroid/install_offline](https://github.com/niuroverteam/PicusMartius/tree/master/Odroid/install_offline)
-#### To use them, first
-    # make each script executable
+#### To use them
+    # first make each script executable
     chmod +x SCRIPT
 #### Each time a script is run, a directory can be provided {-p}
     # specify download to path / restore from path / install from path
-    ./SCRIPT -p DOWNLOADPATH
+    ./SCRIPT -p DIRECTORY
 #### Each script can download a local repository of packages {-d}
     # download relevant packages
     ./SCRIPT -d
 #### The py_deps and linux_deps scripts support installation from the local repo {-i}
     # install relevant packages
     ./SCRIPT -i
+    # download to DIRECTORY and install from it
+    ./SCRIPT -p DIRECTORY -d -i
 #### The linux_deps and ros_deps support restoring downloaded packages to the system's apt-get cache directory {-r}
     # restore relevant packages
     ./SCRIPT -r
     # packages may then be installed from cache with standard apt-get, without specifying a package path
-
-### Install a few tools *(included when using the offline bash scripts)*
+****
+### A few handy tools *(included when using the offline bash scripts)*
 #### Use htop to kill processes, view cpu and ram usage, etc
 1. sudo apt-get install htop
 #### Use i2c tool's 'i2cdetect' to detect device addresses
@@ -84,7 +95,7 @@ https://odroid.in/ubuntu_16.04lts/
 
 ### To use picuspy package
 Follow installation instructions at
-  https://github.com/NIURoverTeam/picuspy/blob/master/installs.md
+  https://github.com/NIURoverTeam/picuspy
   
 ---
 
