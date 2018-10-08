@@ -64,7 +64,7 @@ fi
 if [ "$RESTORE_FLAG" = "1" ]; then
     eval $(apt-config shell CACHE Dir::Cache)
     eval $(apt-config shell ARCHIVES Dir::Cache::archives)
-    CACHE_PATH=/${CACHE}${ARCHIVES}
+    CACHE_PATH=/${CACHE}/${ARCHIVES}
     
     printf $"*****\nRestoring packages from [$BACKUP_PATH] to \n[$CACHE_PATH]\n*****\n"
     
