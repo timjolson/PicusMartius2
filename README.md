@@ -53,3 +53,7 @@ https://sourceforge.net/p/raspberry-gpio-python/wiki/PWM/
 
 Robotic-Controls (**interactive**)
 http://robotic-controls.com/learn/inverted-pendulum-controls
+
+## License
+
+See [LICENSE](LICENSE) for details.
